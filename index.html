@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>IAEgo</title>
+  <title>IAEgo Veta</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* --- estilos idénticos a los anteriores --- */
     :root {
       --bg:#F9FAFB; --surface:#FFF;
       --primary:#5A67D8; --primary-hover:#4C51BF;
@@ -28,8 +27,9 @@
     fieldset{background:var(--surface);border:none;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:var(--spacing);margin-bottom:var(--spacing)}
     legend{font-size:1.1rem;color:var(--primary);font-weight:500}
     label{display:block;margin-bottom:.25rem;color:var(--text-light);font-size:.95rem}
-    input,select{width:100%;padding:.65rem;margin-bottom:var(--spacing);border:1px solid #E2E8F0;border-radius:var(--radius);font-size:1rem;font-family:var(--font);color:var(--text)}
-    input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(90,103,216,0.2)}
+    input,select,textarea{width:100%;padding:.65rem;margin-bottom:var(--spacing);border:1px solid #E2E8F0;border-radius:var(--radius);font-size:1rem;font-family:var(--font);color:var(--text)}
+    textarea{height:150px;resize:vertical}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(90,103,216,0.2)}
     button{font-family:var(--font);font-size:1rem;padding:.65rem 1.4rem;border:none;border-radius:var(--radius);cursor:pointer;transition:background .2s,transform .1s,box-shadow .2s;box-shadow:var(--shadow-sm)}
     button:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
     button:active{transform:translateY(0)}
@@ -59,7 +59,6 @@
     .item-list li{display:flex;justify-content:space-between;align-items:center;padding:.65rem;border-bottom:1px solid #E2E8F0;cursor:pointer}
     .item-list li:hover{background:#EDF2F7}
     .item-list li span{flex:1}
-    .item-list li button{margin-left:.5rem;padding:.3rem .6rem;font-size:.85rem}
     .bottom-menu{position:fixed;bottom:0;left:0;width:100%;background:var(--surface);box-shadow:var(--shadow-sm);display:flex;justify-content:space-between;align-items:center;padding:.75rem var(--spacing);z-index:1050}
     .bottom-menu button{font-size:.95rem;padding:.5rem 1rem}
   </style>
@@ -88,6 +87,12 @@
         <input type="number" id="ing-precio" min="0" step="any" placeholder="Ej. 30">
         <button id="btn-add-ingrediente" class="btn-primary">Guardar Ingrediente</button>
       </fieldset>
+
+      <div class="contenedor-btn" style="margin-bottom:1rem">
+        <button id="btn-export-ingredientes" class="btn-secondary action-btn">Exportar Ingredientes</button>
+        <button id="btn-import-ingredientes" class="btn-secondary action-btn">Importar Ingredientes</button>
+      </div>
+
       <h2>Ingredientes Guardados</h2>
       <div class="table-wrapper">
         <table id="tbl-ingredientes">
@@ -124,13 +129,11 @@
     </section>
   </div>
 
-  <!-- Menú inferior fijo -->
   <div class="bottom-menu">
     <button id="btn-view-recipes-bottom" class="btn-secondary">Ver Recetas</button>
     <div>Costo total: $<span id="bottom-costo-total">0.00</span></div>
   </div>
 
-  <!-- Modal reutilizable -->
   <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -143,7 +146,6 @@
   </div>
 
   <script>
-    // toast y pestañas
     const showMessage=(txt,error=true)=>{
       const m=document.getElementById('mensaje');
       m.textContent=txt;
@@ -152,8 +154,9 @@
       m.style.border    = error? '1px solid #e74c3c':'1px solid #2ecc71';
       m.style.display   ='block';
       clearTimeout(m._t);
-      m._t = setTimeout(()=>m.style.display='none',4000);
+      m._t=setTimeout(()=>m.style.display='none',4000);
     };
+
     const tabIng=document.getElementById('tab-ingredientes'),
           tabRec=document.getElementById('tab-recetas'),
           secIng=document.getElementById('sect-ingredientes'),
@@ -161,16 +164,15 @@
     tabIng.onclick=()=>{ tabIng.classList.add('active'); tabRec.classList.remove('active'); secIng.classList.add('active'); secRec.classList.remove('active'); };
     tabRec.onclick=()=>{ tabRec.classList.add('active'); tabIng.classList.remove('active'); secRec.classList.add('active'); secIng.classList.remove('active'); };
 
-    // datos y helpers
     const unidades={ masa:['mg','g','kg'], volumen:['ml','l'], medida:['tsp','tbsp','cup'], unidad:['u'] };
     const factors={ mg:1/1000,g:1,kg:1000,ml:1,l:1000,tsp:5,tbsp:15,cup:240,u:1 };
     const load=k=>JSON.parse(localStorage.getItem(k)||'[]');
     const save=(k,d)=>localStorage.setItem(k,JSON.stringify(d));
+
     let ingredientes=load('ingredientes'),
         receta={ nombre:'',porciones:1,items:[] },
         editIngIndex=null, editRecIndex=null, editRecItemIdx=null;
 
-    // referencias DOM
     const ingUniSel   =document.getElementById('ing-unidad'),
           recUniSel   =document.getElementById('rec-unidad'),
           recIngSel   =document.getElementById('rec-ingrediente'),
@@ -185,7 +187,9 @@
           modalTitle  =document.getElementById('modal-title'),
           modalBody   =document.getElementById('modal-body'),
           modalFooter =document.getElementById('modal-footer'),
-          btnCloseMod =document.getElementById('modal-close');
+          btnCloseMod =document.getElementById('modal-close'),
+          btnExportIng=document.getElementById('btn-export-ingredientes'),
+          btnImportIng=document.getElementById('btn-import-ingredientes');
 
     function optionsFrom(arr){ return arr.map(o=>`<option value="${o}">${o}</option>`).join(''); }
     function buildOptions(){
@@ -209,7 +213,7 @@
     function updateRecUnidad(){
       const sel=recIngSel.value;
       if(!sel){ recUniSel.innerHTML=buildOptions(); return; }
-      const tipo=sel.charAt(0), idx=+sel.slice(1);
+      const tipo=sel[0], idx=+sel.slice(1);
       if(tipo==='I'){
         const base=ingredientes[idx].unidad;
         let opts,label;
@@ -228,8 +232,7 @@
         const ing=ingredientes[it.idx], pu=ing.precio/(factors[ing.unidad]*ing.cantidad);
         return pu*(factors[it.unidad]*it.cantidad);
       } else {
-        const sub=load('recetas')[it.idx],
-              tot=sub.items.reduce((s,x)=>s+getItemCost(x),0);
+        const sub=load('recetas')[it.idx], tot=sub.items.reduce((s,x)=>s+getItemCost(x),0);
         return (tot/sub.porciones)*it.cantidad;
       }
     }
@@ -237,10 +240,12 @@
     function renderIngredientes(){
       tblIngBody.innerHTML=ingredientes.map((ing,i)=>`
         <tr>
-          <td>${ing.nombre}</td><td>${ing.cantidad} ${ing.unidad}</td><td>$${ing.precio.toFixed(2)}</td>
+          <td>${ing.nombre}</td>
+          <td>${ing.cantidad} ${ing.unidad}</td>
+          <td>$${ing.precio.toFixed(2)}</td>
           <td class="contenedor-btn">
             <button class="action-btn btn-primary" onclick="startEditIng(${i})">✏️</button>
-            <button class="action-btn btn-danger"  onclick="deleteIng(${i})">🗑️</button>
+            <button class="action-btn btn-danger" onclick="deleteIng(${i})">🗑️</button>
           </td>
         </tr>`).join('');
       recIngSel.innerHTML=buildRecOptions();
@@ -257,17 +262,17 @@
         total+=costo;
         return `
         <tr>
-          <td>${nombre}</td><td>${it.cantidad} ${it.unidad}</td><td>$${costo.toFixed(2)}</td>
+          <td>${nombre}</td>
+          <td>${it.cantidad} ${it.unidad}</td>
+          <td>$${costo.toFixed(2)}</td>
           <td class="contenedor-btn">
             <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
             <button class="action-btn btn-danger"  onclick="delRecItem(${i})">🗑️</button>
           </td>
-        </tr>`;
-      }).join('');
+        </tr>`;}).join('');
       bottomCost.textContent=total.toFixed(2);
     }
 
-    // CRUD Ingredientes
     document.getElementById('btn-add-ingrediente').onclick=()=>{
       const n=document.getElementById('ing-nombre'),
             c=document.getElementById('ing-cantidad'),
@@ -279,15 +284,14 @@
       if(editIngIndex===null){
         ingredientes.push(nuevo); showMessage('Ingrediente guardado.',false);
       } else {
-        ingredientes[editIngIndex]=nuevo;
-        showMessage('Ingrediente actualizado.',false);
-        editIngIndex=null;
-        document.getElementById('btn-add-ingrediente').textContent='Guardar Ingrediente';
+        ingredientes[editIngIndex]=nuevo; showMessage('Ingrediente actualizado.',false);
+        editIngIndex=null; document.getElementById('btn-add-ingrediente').textContent='Guardar Ingrediente';
       }
       save('ingredientes',ingredientes);
       [n,c,p].forEach(x=>x.value='');
       renderIngredientes(); renderReceta();
     };
+
     window.startEditIng=i=>{
       const ing=ingredientes[i];
       document.getElementById('ing-nombre').value=ing.nombre;
@@ -297,6 +301,7 @@
       editIngIndex=i;
       document.getElementById('btn-add-ingrediente').textContent='Actualizar Ingrediente';
     };
+
     window.deleteIng=i=>{
       ingredientes.splice(i,1);
       save('ingredientes',ingredientes);
@@ -304,83 +309,72 @@
       renderIngredientes(); renderReceta();
     };
 
-    // CRUD Items de Receta
     btnAddRecIt.onclick=()=>{
       if(!recIngSel.value) return showMessage('Selecciona un elemento.');
-      const tipo=recIngSel.value.charAt(0),
-            idx =+recIngSel.value.slice(1),
-            c   =+document.getElementById('rec-cantidad').value;
+      const tipo=recIngSel.value[0], idx=+recIngSel.value.slice(1), c=+document.getElementById('rec-cantidad').value;
       if(!c||c<=0) return showMessage('Cantidad > 0.');
       const item={ tipo, idx, cantidad:c, unidad:recUniSel.value };
       if(editRecItemIdx===null) receta.items.push(item);
       else {
         receta.items[editRecItemIdx]=item;
         editRecItemIdx=null;
-        btnAddRecIt.textContent='Agregar a Receta';
+        btnAddRecIt.textContent='Agregar ingrediente';
       }
       renderReceta();
-      recIngSel.value='';
-      recUniSel.innerHTML=buildOptions();
+      recIngSel.value=''; recUniSel.innerHTML=buildOptions();
       document.getElementById('rec-cantidad').value='';
       btnOpenModal.textContent='Seleccionar elemento…';
     };
+
     window.startEditRecItem=i=>{
       const it=receta.items[i];
       editRecItemIdx=i;
-      recIngSel.value=it.tipo+it.idx;
-      updateRecUnidad();
+      recIngSel.value=it.tipo+it.idx; updateRecUnidad();
       document.getElementById('rec-cantidad').value=it.cantidad;
-      const label= it.tipo==='I'
+      btnOpenModal.textContent= it.tipo==='I'
         ? ingredientes[it.idx].nombre
         : load('recetas')[it.idx].nombre+' (receta)';
-      btnOpenModal.textContent=label;
-      btnAddRecIt.textContent='Actualizar Item';
+      btnAddRecIt.textContent='Actualizar ingrediente';
     };
+
     window.delRecItem=i=>{ receta.items.splice(i,1); renderReceta(); };
 
-    // Editar receta completa
     window.startEditRec=i=>{
       tabRec.click();
       const r=load('recetas')[i];
       receta=JSON.parse(JSON.stringify(r));
       editRecIndex=i; editRecItemIdx=null;
       btnOpenModal.textContent='Seleccionar elemento…';
-      btnAddRecIt.textContent='Agregar a Receta';
+      btnAddRecIt.textContent='Agregar ingrediente';
       renderReceta(); updateRecUnidad();
     };
 
-    // Modal genérico de selección
     function openModal(){ modalBkp.style.display='flex'; }
     function closeModal(){ modalBkp.style.display='none'; modalBody.innerHTML=''; modalFooter.innerHTML=''; }
     btnCloseMod.onclick=closeModal;
 
-    function showSelectModal(items, onSelect, isRecList=false){
-      modalTitle.textContent = isRecList ? 'Recetas Guardadas' : 'Seleccionar Ingrediente/Receta';
-      modalBody.innerHTML = `<ul class="item-list">${items.map((it,i)=>`
+    function showSelectModal(items,onSelect,isRecList=false){
+      modalTitle.textContent=isRecList?'Recetas Guardadas':'Seleccionar Ingrediente/Receta';
+      modalBody.innerHTML='<ul class="item-list">'+items.map((it,i)=>`
         <li data-value="${it.value||''}" data-index="${it.index!=null?it.index:i}">
           <span>${it.label}</span>
-          ${isRecList
-            ? `<button class="action-btn btn-primary" data-action="edit">✏️</button>
-               <button class="action-btn btn-danger"  data-action="delete">🗑️</button>`
-            : ``
-          }
-        </li>`).join('')}</ul>`;
-      modalFooter.innerHTML = '';
+          ${isRecList?`<button class="action-btn btn-primary" data-action="edit">✏️</button>
+            <button class="action-btn btn-danger" data-action="delete">🗑️</button>`:''}
+        </li>`).join('')+'</ul>';
+      modalFooter.innerHTML='';
       modalBody.querySelectorAll('li').forEach(li=>{
-        const idx = +li.dataset.index;
+        const idx=+li.dataset.index;
         if(isRecList){
           li.querySelectorAll('button').forEach(btn=>{
             btn.onclick=e=>{
               e.stopPropagation();
               if(btn.dataset.action==='edit'){ startEditRec(idx); closeModal(); }
-              else                            { deleteRec(idx); li.remove(); }
+              else{ deleteRec(idx); li.remove(); }
             };
           });
         } else {
           li.onclick=()=>{
-            const val = li.dataset.value;
-            const label = li.querySelector('span').textContent;
-            onSelect({ value: val, label });
+            onSelect({ value:li.dataset.value, label:li.querySelector('span').textContent });
             closeModal();
           };
         }
@@ -388,78 +382,100 @@
       openModal();
     }
 
-    // Botón "Seleccionar elemento…"
-    btnOpenModal.onclick = ()=>{
-      const recs = load('recetas');
-      const items = [
-        ...ingredientes.map((ing,i)=>({ label: ing.nombre, value: `I${i}` })),
-        ...recs.map((r,i)=>({ label: r.nombre,     value: `R${i}` }))
+    btnOpenModal.onclick=()=>{
+      const recs=load('recetas');
+      const items=[
+        ...ingredientes.map((ing,i)=>({ label:ing.nombre, value:`I${i}` })),
+        ...recs.map((r,i)=>({ label:r.nombre, value:`R${i}` }))
       ];
-      showSelectModal(items, sel=>{
-        recIngSel.value = sel.value;
-        updateRecUnidad();
-        btnOpenModal.textContent = sel.label;
-      }, false);
+      showSelectModal(items,sel=>{
+        recIngSel.value=sel.value; updateRecUnidad();
+        btnOpenModal.textContent=sel.label;
+      },false);
     };
 
-    // Modal para guardar/actualizar receta
     function showSaveRecipeModal(){
-      modalTitle.textContent = editRecIndex===null ? 'Guardar Receta' : 'Actualizar Receta';
-      modalBody.innerHTML = `
+      modalTitle.textContent=editRecIndex===null?'Guardar Receta':'Actualizar Receta';
+      modalBody.innerHTML=`
         <label>Nombre de la receta</label>
         <input id="modal-rec-nombre" placeholder="Ej. Limonada">
         <label>Porciones que rinde</label>
-        <input type="number" id="modal-rec-porciones" min="1" step="1" placeholder="Ej. 4">
-      `;
-      modalFooter.innerHTML = `
+        <input type="number" id="modal-rec-porciones" min="1" step="1" placeholder="Ej. 4">`;
+      modalFooter.innerHTML=`
         <button id="modal-cancel" class="btn-secondary">Cancelar</button>
-        <button id="modal-confirm" class="btn-primary">Confirmar</button>
-      `;
-      const inNombre = document.getElementById('modal-rec-nombre');
-      const inPorc   = document.getElementById('modal-rec-porciones');
-      if(editRecIndex!==null){ inNombre.value=receta.nombre; inPorc.value=receta.porciones; }
+        <button id="modal-confirm" class="btn-primary">Confirmar</button>`;
+      const inN=document.getElementById('modal-rec-nombre'),
+            inP=document.getElementById('modal-rec-porciones');
+      if(editRecIndex!==null){ inN.value=receta.nombre; inP.value=receta.porciones; }
       document.getElementById('modal-cancel').onclick=closeModal;
       document.getElementById('modal-confirm').onclick=()=>{
-        const nombre    = inNombre.value.trim();
-        const porciones = parseInt(inPorc.value,10);
-        if(!nombre)                     return showMessage('La receta necesita nombre.');
+        const nombre=inN.value.trim(), porciones=parseInt(inP.value,10);
+        if(!nombre) return showMessage('La receta necesita nombre.');
         if(isNaN(porciones)||porciones<1) return showMessage('Porciones debe ser ≥ 1.');
-        receta.nombre    = nombre;
-        receta.porciones = porciones;
-        const todas = load('recetas');
+        receta.nombre=nombre; receta.porciones=porciones;
+        const todas=load('recetas');
         if(editRecIndex===null){ todas.push(receta); showMessage('Receta guardada.',false); }
-        else                   { todas[editRecIndex]=receta; showMessage('Receta actualizada.',false); }
+        else{ todas[editRecIndex]=receta; showMessage('Receta actualizada.',false); }
         save('recetas',todas);
         receta={ nombre:'',porciones:1,items:[] };
         editRecIndex=null; editRecItemIdx=null;
-        btnAddRecIt.textContent='Agregar a Receta';
+        btnAddRecIt.textContent='Agregar ingrediente';
         btnOpenModal.textContent='Seleccionar elemento…';
-        renderReceta();
-        closeModal();
+        renderReceta(); closeModal();
       };
       openModal();
     }
-    btnSaveRec.onclick = showSaveRecipeModal;
+    btnSaveRec.onclick=showSaveRecipeModal;
 
-    // Ver recetas con costo total
-    btnViewRecs.onclick = ()=>{
-      const todas = load('recetas');
-      const recs = todas.map((r,i)=>{
-        const costoTotal = r.items.reduce((s,it)=>s+getItemCost(it),0).toFixed(2);
-        return { label: `${r.nombre} — ${r.items.length} ítems — Costo: $${costoTotal}`, index: i };
+    btnViewRecs.onclick=()=>{
+      const todas=load('recetas');
+      const recs=todas.map((r,i)=>{
+        const costoTotal=r.items.reduce((s,it)=>s+getItemCost(it),0).toFixed(2);
+        return{ label:`${r.nombre} — ${r.items.length} ítems — Costo: $${costoTotal}`, index:i };
       });
-      showSelectModal(recs, null, true);
+      showSelectModal(recs,null,true);
     };
 
-    // Eliminar receta
-    window.deleteRec = i=>{
-      const arr = load('recetas');
-      arr.splice(i,1);
-      save('recetas',arr);
+    window.deleteRec=i=>{
+      const arr=load('recetas'); arr.splice(i,1); save('recetas',arr);
       showMessage('Receta eliminada.',false);
     };
 
-    // Init
+    btnExportIng.onclick=()=>{
+      try{
+        const json=JSON.stringify(ingredientes,null,2);
+        navigator.clipboard.writeText(json).then(
+          ()=>showMessage('Ingredientes copiados al portapapeles.',false),
+          ()=>showMessage('No se pudo copiar al portapapeles.')
+        );
+      }catch{ showMessage('Error al generar JSON.'); }
+    };
+
+    btnImportIng.onclick=()=>{
+      modalTitle.textContent='Importar Ingredientes';
+      modalBody.innerHTML=`<p>Pega aquí el JSON exportado:</p><textarea id="import-json"></textarea>`;
+      modalFooter.innerHTML=`
+        <button id="import-cancel" class="btn-secondary">Cancelar</button>
+        <button id="import-confirm" class="btn-primary">Pegar</button>`;
+      document.getElementById('import-cancel').onclick=closeModal;
+      document.getElementById('import-confirm').onclick=()=>{
+        const text=document.getElementById('import-json').value.trim();
+        try{
+          const arr=JSON.parse(text);
+          if(!Array.isArray(arr)) throw '';
+          for(const ing of arr){
+            if(typeof ing.nombre!=='string'||typeof ing.cantidad!=='number'
+            ||typeof ing.unidad!=='string'||typeof ing.precio!=='number') throw '';
+          }
+          ingredientes=arr; save('ingredientes',ingredientes);
+          renderIngredientes(); renderReceta();
+          showMessage('Ingredientes importados correctamente.',false);
+          closeModal();
+        }catch{ showMessage('JSON inválido o formato incorrecto.'); }
+      };
+      openModal();
+    };
+
     renderIngredientes();
     renderReceta();
     recIngSel.addEventListener('change', updateRecUnidad);
