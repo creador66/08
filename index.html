@@ -1,595 +1,468 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
- 
-  <title>PLANTILLA | WEB 8</title>
-
-  <!-- Bootstrap -->
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/font-awesome.css">
-  <link rel="stylesheet" href="css/animate.css">
-  <link href="css/style.css" rel="stylesheet">
-
-  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Playball' rel='stylesheet' type='text/css'>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IAEgo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* --- estilos idénticos a los anteriores --- */
+    :root {
+      --bg:#F9FAFB; --surface:#FFF;
+      --primary:#5A67D8; --primary-hover:#4C51BF;
+      --secondary:#2DD4BF; --secondary-hover:#14B8A6;
+      --error:#F56565; --success:#48BB78;
+      --text:#2D3748; --text-light:#718096;
+      --radius:12px; --shadow-sm:rgba(0,0,0,0.05) 0 1px 2px;
+      --shadow-md:rgba(0,0,0,0.1) 0 4px 6px;
+      --spacing:1rem; --font:'Inter',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);padding:var(--spacing);display:flex;justify-content:center;padding-bottom:4rem}
+    .container{max-width:1000px;width:100%}
+    h1{text-align:center;margin-bottom:var(--spacing);font-weight:600}
+    .tabs{display:flex;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:var(--spacing)}
+    .tab{flex:1;text-align:center;padding:.75rem;cursor:pointer;color:var(--text-light);transition:background .2s,color .2s;font-weight:500}
+    .tab.active{background:var(--primary);color:#fff}
+    #mensaje{position:fixed;top:var(--spacing);right:var(--spacing);max-width:300px;display:none;padding:var(--spacing);border-radius:var(--radius);box-shadow:var(--shadow-md);font-weight:500;z-index:1100}
+    fieldset{background:var(--surface);border:none;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:var(--spacing);margin-bottom:var(--spacing)}
+    legend{font-size:1.1rem;color:var(--primary);font-weight:500}
+    label{display:block;margin-bottom:.25rem;color:var(--text-light);font-size:.95rem}
+    input,select{width:100%;padding:.65rem;margin-bottom:var(--spacing);border:1px solid #E2E8F0;border-radius:var(--radius);font-size:1rem;font-family:var(--font);color:var(--text)}
+    input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(90,103,216,0.2)}
+    button{font-family:var(--font);font-size:1rem;padding:.65rem 1.4rem;border:none;border-radius:var(--radius);cursor:pointer;transition:background .2s,transform .1s,box-shadow .2s;box-shadow:var(--shadow-sm)}
+    button:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+    button:active{transform:translateY(0)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:var(--primary-hover)}
+    .btn-secondary{background:var(--secondary);color:#fff}
+    .btn-secondary:hover{background:var(--secondary-hover)}
+    .btn-danger{background:var(--error);color:#fff}
+    .action-btn{padding:.4rem .8rem;font-size:.9rem}
+    .contenedor-btn{display:flex;gap:3px}
+    .table-wrapper{overflow-x:auto;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:var(--spacing)}
+    table{width:100%;border-collapse:collapse;min-width:600px}
+    th,td{padding:.75rem;text-align:left;border-bottom:1px solid #E2E8F0;white-space:nowrap;font-size:.95rem}
+    th{background:var(--primary);color:#fff;position:sticky;top:0}
+    tr:hover td{background:#F1F5F9}
+    .flex{display:flex;gap:.5rem;flex-wrap:wrap}
+    section{display:none}
+    section.active{display:block}
+    .modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;padding:var(--spacing)}
+    .modal{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-md);width:100%;max-width:480px;max-height:80%;display:flex;flex-direction:column;overflow:hidden}
+    .modal-header{padding:var(--spacing);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0}
+    .modal-header h4{margin:0;font-weight:500;color:var(--text)}
+    .modal-header button{font-size:1.4rem;background:transparent;box-shadow:none;color:var(--text-light)}
+    .modal-body{padding:var(--spacing);overflow-y:auto;flex:1}
+    .modal-footer{padding:var(--spacing);text-align:right;border-top:1px solid #E2E8F0}
+    .item-list{list-style:none;padding:0;margin:0}
+    .item-list li{display:flex;justify-content:space-between;align-items:center;padding:.65rem;border-bottom:1px solid #E2E8F0;cursor:pointer}
+    .item-list li:hover{background:#EDF2F7}
+    .item-list li span{flex:1}
+    .item-list li button{margin-left:.5rem;padding:.3rem .6rem;font-size:.85rem}
+    .bottom-menu{position:fixed;bottom:0;left:0;width:100%;background:var(--surface);box-shadow:var(--shadow-sm);display:flex;justify-content:space-between;align-items:center;padding:.75rem var(--spacing);z-index:1050}
+    .bottom-menu button{font-size:.95rem;padding:.5rem 1rem}
+  </style>
 </head>
-
 <body>
-  <div class="wrapper" id="wrapper">
-    <header>
-      <div class="banner row" id="banner">
-        <div class="parallax text-center" style="background-image: url(img/1.jpg);">
-          <div class="parallax-pattern-overlay">
-            <div class="container text-center" style="height:600px;padding-top:170px;">
-              <a href="#"><img id="site-title" class=" wow fadeInDown" wow-data-delay="0.0s" wow-data-duration="0.9s" src="img/2.png" alt=""/></a>
-              <h2 class="intro"><a href="index.html">ProOnliPc</a></h2>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="menu">
-        <div class="navbar-wrapper">
-          <div class="container">
-            <div class="navwrapper">
-              <div class="navbar navbar-inverse navbar-static-top">
-                <div class="container">
-                  <div class="navArea">
-                    <div class="navbar-collapse collapse">
-                      <ul class="nav navbar-nav">
-                        <li class="menuItem active"><a href="#wrapper">Home</a></li>
-                        <li class="menuItem"><a href="#aboutus">About Us</a></li>
-                        <li class="menuItem"><a href="#specialties">Skills</a></li>
-                        <li class="menuItem"><a href="#gallery">Portfolio</a></li>
-                        <li class="menuItem"><a href="#feedback">Education</a></li>
-                        <li class="menuItem"><a href="#contact">Contact</a></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+  <div class="container">
+    <h1>IAEgo Veta</h1>
+    <div id="mensaje"></div>
+    <div class="tabs">
+      <div class="tab active" id="tab-ingredientes">Ingredientes</div>
+      <div class="tab" id="tab-recetas">Recetas</div>
+    </div>
 
-    <!--about us-->
-    <section class="aboutus" id="aboutus">
-      <div class="container">
-        <div class="heading text-center">
-          <h2>About Me</h2>
-          <h3>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros. Etiam ullamcorper sed lectus sit amet mattis. Morbi justo sem, cursus nec convallis a, pellentesque eu mi. Morbi hendrerit ultricies ligula </h3>
+    <!-- Ingredientes -->
+    <section id="sect-ingredientes" class="active">
+      <fieldset>
+        <legend>➕ Añadir Ingrediente</legend>
+        <label for="ing-nombre">Nombre</label>
+        <input id="ing-nombre" placeholder="Ej. Azúcar">
+        <label for="ing-cantidad">Cantidad comprada</label>
+        <div class="flex">
+          <input type="number" id="ing-cantidad" min="0" step="any" placeholder="Ej. 2">
+          <select id="ing-unidad"></select>
         </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="papers text-center">
-              <img src="img/team/1.jpg" alt=""><br/>
-              <a href="#"><b>Download my resume</b></a>
-              <h4 class="">My Teacher John Vandeley</h4>
-              <p>
-                Have you ever felt worried that your party will not raise up to your guest expectations? In design, vertical rhythm is the structure that guides a reader's eye through the content. Good vertical rhythm makes a layout more balanced and beautiful and its
-                content more readable. The time signature in sheet music visually depicts a song's rhythm, while for us, the lines of the baseline grid depict the rhythm of our content and give us guidelines.
-              </p>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="papers text-center">
-              <img src="img/team/2.jpg" alt=""><br/>
-              <a href="#"><b>Download my resume</b></a>
-              <h4 class="">My Teacher Stephanie Hellen</h4>
-              <p>
-                Have you ever felt worried that your party will not raise up to your guest expectations? In design, vertical rhythm is the structure that guides a reader's eye through the content. Good vertical rhythm makes a layout more balanced and beautiful and its
-                content more readable. The time signature in sheet music visually depicts a song's rhythm, while for us, the lines of the baseline grid depict the rhythm of our content and give us guidelines.
-              </p>
-            </div>
-          </div>
-        </div>
+        <label for="ing-precio">Precio total (pesos)</label>
+        <input type="number" id="ing-precio" min="0" step="any" placeholder="Ej. 30">
+        <button id="btn-add-ingrediente" class="btn-primary">Guardar Ingrediente</button>
+      </fieldset>
+      <h2>Ingredientes Guardados</h2>
+      <div class="table-wrapper">
+        <table id="tbl-ingredientes">
+          <thead><tr><th>Nombre</th><th>Cantidad</th><th>Precio</th><th>Acción</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </section>
 
-
-    <!--skills-->
-    <section class="specialties" id="specialties">
-      <div class="container">
-        <div class="heading text-center">
-          <h2>Our Skills</h2>
-          <h3>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros. Etiam ullamcorper sed lectus sit amet mattis. Morbi justo sem, cursus nec convallis a, pellentesque eu mi. Morbi hendrerit ultricies ligula </h3>
+    <!-- Recetas -->
+    <section id="sect-recetas">
+      <fieldset>
+        <legend>📝 Crear / Editar Receta</legend>
+        <label>Ingrediente / Receta</label>
+        <button id="btn-open-modal" class="btn-secondary">Seleccionar elemento…</button>
+        <select id="rec-ingrediente" style="display:none"></select>
+        <label for="rec-cantidad">Cantidad</label>
+        <div class="flex">
+          <input type="number" id="rec-cantidad" min="0" step="any" placeholder="Ej. 2">
+          <select id="rec-unidad"></select>
         </div>
-      </div>
-
-      <div class="container">
-        <div class="row">
-          <div class="col-md-6 wow fadeInRight" data-wow-offset="0" data-wow-delay="0.3s" ">
-					<div class="skill ">
-						<div class="progress-wrap ">
-							<h3>Graphic Design</h3>
-							<div class="progress ">
-							  <div class="progress-bar color1 " role="progressbar " aria-valuenow="40 " aria-valuemin="0 " aria-valuemax="100 " style="width: 85% ">
-								<span class="bar-width ">85%</span>
-							  </div>
-
-							</div>
-						</div>
-
-						<div class="progress-wrap ">
-							<h3>HTML</h3>
-							<div class="progress ">
-							  <div class="progress-bar color2 " role="progressbar " aria-valuenow="20 " aria-valuemin="0 " aria-valuemax="100 " style="width: 95% ">
-							   <span class="bar-width ">95%</span>
-							  </div>
-							</div>
-						</div>
-
-						<div class="progress-wrap ">
-							<h3>CSS</h3>
-							<div class="progress ">
-							  <div class="progress-bar color3 " role="progressbar " aria-valuenow="60 " aria-valuemin="0 " aria-valuemax="100 " style="width: 80% ">
-								<span class="bar-width ">80%</span>
-							  </div>
-							</div>
-						</div>
-
-						<div class="progress-wrap ">
-							<h3>Wordpress</h3>
-							<div class="progress ">
-							  <div class="progress-bar color4 " role="progressbar " aria-valuenow="80 " aria-valuemin="0 " aria-valuemax="100 " style="width: 90% ">
-								<span class="bar-width ">90%</span>
-							  </div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-md-6 wow fadeInRight " data-wow-offset="0 " data-wow-delay="0.6s "">
-            <img src="img/team/6.jpg" class="img-responsive">
-          </div>
+        <div class="contenedor-btn">
+          <button id="btn-add-receta-ing" class="btn-secondary">Agregar ingrediente</button>
+          <button id="btn-save-receta" class="btn-primary">Guardar Receta</button>
         </div>
-      </div>
-
-      <div class="container">
-        <div class="row">
-          <div class="col-md-4">
-            <div class="skills">
-              <h3 class="main text-center">WEB DESIGN</h3>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>HTML</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>CSS</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>JAVASCRIPT</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="skills">
-              <h3 class="main text-center">PHOTOGRAPHY</h3>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>adipiscing elit</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>adipiscing elit</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>adipiscing elit</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="skills">
-              <h3 class="main text-center">PROGRAMMING</h3>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>adipiscing elit</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>adipiscing elit</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-              <div class="restitem clearfix">
-                <div class="rm-thumb" style="background-image: url(img/2.png)">
-                </div>
-                <h5>adipiscing elit</h5>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      </fieldset>
+      <h3>Ingredientes de la receta</h3>
+      <div class="table-wrapper">
+        <table id="tbl-receta">
+          <thead><tr><th>Elemento</th><th>Cantidad</th><th>Costo</th><th>Acción</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </section>
-
-
-    <!--portfolio-->
-    <section class="gallery" id="gallery">
-      <div class="container">
-        <div class="heading text-center">
-          <h2>Portfolio</h2>
-          <h3>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi quis dolor sit amet lacus ultricies rutrum. Curabitur vitae fringilla elit. Sed at nunc congue, cursus erat ac, pellentesque eros. Etiam ullamcorper sed lectus sit amet mattis.</h3>
-        </div>
-
-        <div id="grid-gallery" class="grid-gallery">
-          <section class="grid-wrap">
-            <ul class="grid">
-              <li class="grid-sizer"></li>
-              <!-- for Masonry column width -->
-              <li>
-                <figure>
-                  <img src="img/work/1.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/2.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/3.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/4.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/5.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/6.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-
-              <li>
-                <figure>
-                  <img src="img/work/7.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-
-              <li>
-                <figure>
-                  <img src="img/work/8.jpg" alt="" />
-                  <figcaption>
-                    <h3>Vitae fringilla elit</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-                  </figcaption>
-                </figure>
-              </li>
-
-            </ul>
-          </section>
-          <!-- // end small images -->
-
-          <section class="slideshow">
-            <ul>
-              <li>
-                <figure>
-                  <img src="img/work/1.jpg" alt="" />
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/2.jpg" alt="" />
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/3.jpg" alt="" />
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/4.jpg" alt="" />
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/5.jpg" alt="" />
-                </figure>
-              </li>
-              <li>
-                <figure>
-                  <img src="img/work/6.jpg" alt="" />
-                </figure>
-              </li>
-
-              <li>
-                <figure>
-                  <img src="img/work/7.jpg" alt="" />
-                </figure>
-              </li>
-
-              <li>
-                <figure>
-                  <img src="img/work/8.jpg" alt="" />
-                </figure>
-              </li>
-            </ul>
-            <nav>
-              <span class="icon nav-prev"></span>
-              <span class="icon nav-next"></span>
-              <span class="icon nav-close"></span>
-            </nav>
-            <div class="info-keys icon">Navigate with arrow keys</div>
-          </section>
-          <!-- // end slideshow -->
-        </div>
-        <!-- // grid-gallery -->
-      </div>
-    </section>
-
-    <!--education-->
-    <section class="feedback" id="feedback">
-      <div class="container">
-        <div class="heading">
-          <h2>Education</h2>
-          <h3>Phasellus non dolor nibh. Nullam elementum tellus pretium feugiat.<br>
-				Cras dictum tellus dui, vitae sollicitudin ipsum tincidunt in. Sed tincidunt tristique enim sed sollcitudin.</h3>
-        </div>
-      </div>
-
-      <div class="container">
-        <div class="col-md-4 wow fadeInRight" data-wow-offset="0" data-wow-delay="0.3s">
-          <div class="text-center">
-            <div class="hi-icon-wrap hi-icon-effect">
-              <h4>MASTER OF COMPUTER SCIENCE</h4>
-              <h5>FEB 2012 - DEC 2014</h5>
-              <i class="fa fa-laptop"></i>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4 wow fadeInRight" data-wow-offset="0" data-wow-delay="0.6s">
-          <div class="text-center">
-            <div class="hi-icon-wrap hi-icon-effect">
-              <h4>MASTER OF COMPUTER SCIENCE</h4>
-              <h5>FEB 2012 - DEC 2014</h5>
-              <i class="fa fa-book"></i>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4 wow fadeInRight" data-wow-offset="0" data-wow-delay="0.9s">
-          <div class="text-center">
-            <div class="hi-icon-wrap hi-icon-effect">
-              <h4>MASTER OF COMPUTER SCIENCE</h4>
-              <h5>FEB 2012 - DEC 2014</h5>
-              <i class="fa fa-gear"></i>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="container">
-        <div class="row">
-          <blockquote>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-            It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages." <cite>Jogn De, Programming<br/><i class="fa fa-star"></i> <i class="fa fa-star"></i> <i class="fa fa-star"></i> <i class="fa fa-star"></i> <i class="fa fa-star"></i></cite>            </blockquote>
-          <blockquote>Have you ever felt worried that your party will not raise up to your guest expectations? In design, vertical rhythm is the structure that guides a reader’s eye through the content. Good vertical rhythm makes a layout more balanced and beautiful
-            and its content more readable. The time signature in sheet music visually depicts a song’s rhythm, while for us, the lines of the baseline grid depict the rhythm of our content and give us guidelines. <cite>Marta Kay, Business Development<br/><i class="fa fa-star"></i> <i class="fa fa-star"></i> <i class="fa fa-star"></i> <i class="fa fa-star"></i> <i class="fa fa-star"></i></cite>            </blockquote>
-        </div>
-      </div>
-    </section>
-
-    <!--education-->
-    <section class="contact" id="contact">
-      <div class="container">
-        <div class="heading">
-          <h2>Contact</h2>
-          <h3>Phasellus non dolor nibh. Nullam elementum tellus pretium feugiat.<br>
-				 Cras dictum tellus dui, vitae sollicitudin ipsum tincidunt in. Sed tincidunt tristique enim sed sollcitudin.</h3>
-        </div>
-      </div>
-
-      <div class="container">
-        <div class="row">
-          <div class="col-md-7">
-            <div class="map">
-              <div id="google-map" data-latitude="40.713732" data-longitude="-74.0092704"></div>
-            </div>
-          </div>
-
-          <div class="contact-info">
-            <div class="col-md-5">
-              <h4>My Contact Info</h4>
-              <h5>Nullam elementum tellus pretium feugiat</h5>
-              <p>Fusce fermen tum neque a rutrum varius odio pede ullamcorp-er tellus ut dignissim nisi risus non tortor</p>
-              <ul>
-                <li><i class="fa fa-home fa-2x"></i> Home # 38, Suite 54 Elizebth Street</li>
-                <li><i class="fa fa-phone fa-2x"></i> +38 000 129900</li>
-                <li><i class="fa fa-envelope fa-2x"></i> info@domain.net</li>
-                <li><i class="fa fa-download fa-2x"></i> Download My Resume</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="container">
-        <div class="row">
-          <div class="col-md-8 col-md-offset-2">
-            <div id="sendmessage">Your message has been sent. Thank you!</div>
-            <div id="errormessage"></div>
-            <form action="" method="post" role="form" class="contactForm">
-              <div class="form-group">
-                <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
-                <div class="validation"></div>
-              </div>
-              <div class="form-group">
-                <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
-                <div class="validation"></div>
-              </div>
-              <div class="form-group">
-                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                <div class="validation"></div>
-              </div>
-              <div class="form-group">
-                <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
-                <div class="validation"></div>
-              </div>
-
-              <div class="text-center"><button type="submit" class="contact submit">Send Message</button></div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!--footer-->
-    <section class="footer" id="footer">
-      <p class="text-center">
-        <a href="#wrapper" class="gototop"><i class="fa fa-angle-double-up fa-2x"></i></a>
-      </p>
-      <div class="container">
-        <ul>
-          <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-          <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-          <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-          <li><a href="#"><i class="fa fa-pinterest"></i></a></li>
-          <li><a href="#"><i class="fa fa-flickr"></i></a></li>
-        </ul>
-        <p>&copy; ProOnliPc Theme. All Rights Reserved.</p>
-        <div class="credits">
-     
-          <a href="http://www.servitecflhuaraz.com/">ProOnliPc Themes</a> by <a href="http://www.servitecflhuaraz.com/">ProOnliPc</a>
-        </div>
-      </div>
-    </section>
-
   </div>
-  <script src="js/jquery.js"></script>
-  <script src="js/modernizr.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/menustick.js"></script>
-  <script src="js/parallax.js"></script>
-  <script src="js/easing.js"></script>
-  <script src="js/wow.js"></script>
-  <script src="js/smoothscroll.js"></script>
-  <script src="js/masonry.js"></script>
-  <script src="js/imgloaded.js"></script>
-  <script src="js/classie.js"></script>
-  <script src="js/colorfinder.js"></script>
-  <script src="js/gridscroll.js"></script>
-  <script src="js/contact.js"></script>
-  <script src="js/common.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8HeI8o-c1NppZA-92oYlXakhDPYR7XMY"></script>
+
+  <!-- Menú inferior fijo -->
+  <div class="bottom-menu">
+    <button id="btn-view-recipes-bottom" class="btn-secondary">Ver Recetas</button>
+    <div>Costo total: $<span id="bottom-costo-total">0.00</span></div>
+  </div>
+
+  <!-- Modal reutilizable -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h4 id="modal-title"></h4>
+        <button id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
   <script>
-    wow = new WOW({}).init();
-  </script>
-  <script type="text/javascript">
-    jQuery(function($) {
-      $(document).ready(function() {
-        //enabling stickUp on the '.navbar-wrapper' class
-        $('.navbar-wrapper').stickUp({
-          parts: {
-            0: 'banner',
-            1: 'aboutus',
-            2: 'specialties',
-            3: 'gallery',
-            4: 'feedback',
-            5: 'contact'
-          },
-          itemClass: 'menuItem',
-          itemHover: 'active',
-          topMargin: 'auto'
-        });
-      });
+    // toast y pestañas
+    const showMessage=(txt,error=true)=>{
+      const m=document.getElementById('mensaje');
+      m.textContent=txt;
+      m.style.background= error? '#fdecea':'#e9f7ef';
+      m.style.color     = error? '#c0392b':'#27ae60';
+      m.style.border    = error? '1px solid #e74c3c':'1px solid #2ecc71';
+      m.style.display   ='block';
+      clearTimeout(m._t);
+      m._t = setTimeout(()=>m.style.display='none',4000);
+    };
+    const tabIng=document.getElementById('tab-ingredientes'),
+          tabRec=document.getElementById('tab-recetas'),
+          secIng=document.getElementById('sect-ingredientes'),
+          secRec=document.getElementById('sect-recetas');
+    tabIng.onclick=()=>{ tabIng.classList.add('active'); tabRec.classList.remove('active'); secIng.classList.add('active'); secRec.classList.remove('active'); };
+    tabRec.onclick=()=>{ tabRec.classList.add('active'); tabIng.classList.remove('active'); secRec.classList.add('active'); secIng.classList.remove('active'); };
 
-      //Google Map
-      var get_latitude = $('#google-map').data('latitude');
-      var get_longitude = $('#google-map').data('longitude');
+    // datos y helpers
+    const unidades={ masa:['mg','g','kg'], volumen:['ml','l'], medida:['tsp','tbsp','cup'], unidad:['u'] };
+    const factors={ mg:1/1000,g:1,kg:1000,ml:1,l:1000,tsp:5,tbsp:15,cup:240,u:1 };
+    const load=k=>JSON.parse(localStorage.getItem(k)||'[]');
+    const save=(k,d)=>localStorage.setItem(k,JSON.stringify(d));
+    let ingredientes=load('ingredientes'),
+        receta={ nombre:'',porciones:1,items:[] },
+        editIngIndex=null, editRecIndex=null, editRecItemIdx=null;
 
-      function initialize_google_map() {
-        var myLatlng = new google.maps.LatLng(get_latitude, get_longitude);
-        var mapOptions = {
-          zoom: 14,
-          scrollwheel: false,
-          center: myLatlng
-        };
-        var map = new google.maps.Map(document.getElementById('google-map'), mapOptions);
-        var marker = new google.maps.Marker({
-          position: myLatlng,
-          map: map
-        });
+    // referencias DOM
+    const ingUniSel   =document.getElementById('ing-unidad'),
+          recUniSel   =document.getElementById('rec-unidad'),
+          recIngSel   =document.getElementById('rec-ingrediente'),
+          tblIngBody  =document.querySelector('#tbl-ingredientes tbody'),
+          tblRecBody  =document.querySelector('#tbl-receta tbody'),
+          btnAddRecIt =document.getElementById('btn-add-receta-ing'),
+          btnOpenModal=document.getElementById('btn-open-modal'),
+          btnSaveRec  =document.getElementById('btn-save-receta'),
+          btnViewRecs =document.getElementById('btn-view-recipes-bottom'),
+          bottomCost  =document.getElementById('bottom-costo-total'),
+          modalBkp    =document.getElementById('modal-backdrop'),
+          modalTitle  =document.getElementById('modal-title'),
+          modalBody   =document.getElementById('modal-body'),
+          modalFooter =document.getElementById('modal-footer'),
+          btnCloseMod =document.getElementById('modal-close');
+
+    function optionsFrom(arr){ return arr.map(o=>`<option value="${o}">${o}</option>`).join(''); }
+    function buildOptions(){
+      return [
+        `<optgroup label="Masa">${optionsFrom(unidades.masa)}</optgroup>`,
+        `<optgroup label="Volumen">${optionsFrom(unidades.volumen)}</optgroup>`,
+        `<optgroup label="Medidas">${optionsFrom(unidades.medida)}</optgroup>`,
+        `<optgroup label="Unidad">${optionsFrom(unidades.unidad)}</optgroup>`
+      ].join('');
+    }
+    ingUniSel.innerHTML=buildOptions();
+    recUniSel.innerHTML=buildOptions();
+
+    function buildRecOptions(){
+      const recs=load('recetas');
+      const ingOpts=ingredientes.map((ing,i)=>`<option value="I${i}">${ing.nombre}</option>`).join('');
+      const recOpts=recs.map((r,i)=>`<option value="R${i}">${r.nombre}</option>`).join('');
+      return `<optgroup label="Ingredientes">${ingOpts}</optgroup><optgroup label="Recetas">${recOpts}</optgroup>`;
+    }
+
+    function updateRecUnidad(){
+      const sel=recIngSel.value;
+      if(!sel){ recUniSel.innerHTML=buildOptions(); return; }
+      const tipo=sel.charAt(0), idx=+sel.slice(1);
+      if(tipo==='I'){
+        const base=ingredientes[idx].unidad;
+        let opts,label;
+        if(unidades.masa.includes(base)){ opts=unidades.masa; label='Masa'; }
+        else if(unidades.volumen.includes(base)){ opts=unidades.volumen.concat(unidades.medida); label='Vol/Med'; }
+        else if(unidades.medida.includes(base)){ opts=unidades.medida.concat(unidades.volumen); label='Med/Vol'; }
+        else { opts=unidades.unidad; label='Unidad'; }
+        recUniSel.innerHTML=`<optgroup label="${label}">${optionsFrom(opts)}</optgroup>`;
+      } else {
+        recUniSel.innerHTML='<option value="porción">porción</option>';
       }
-      google.maps.event.addDomListener(window, 'load', initialize_google_map);
-    });
+    }
+
+    function getItemCost(it){
+      if(it.tipo==='I'){
+        const ing=ingredientes[it.idx], pu=ing.precio/(factors[ing.unidad]*ing.cantidad);
+        return pu*(factors[it.unidad]*it.cantidad);
+      } else {
+        const sub=load('recetas')[it.idx],
+              tot=sub.items.reduce((s,x)=>s+getItemCost(x),0);
+        return (tot/sub.porciones)*it.cantidad;
+      }
+    }
+
+    function renderIngredientes(){
+      tblIngBody.innerHTML=ingredientes.map((ing,i)=>`
+        <tr>
+          <td>${ing.nombre}</td><td>${ing.cantidad} ${ing.unidad}</td><td>$${ing.precio.toFixed(2)}</td>
+          <td class="contenedor-btn">
+            <button class="action-btn btn-primary" onclick="startEditIng(${i})">✏️</button>
+            <button class="action-btn btn-danger"  onclick="deleteIng(${i})">🗑️</button>
+          </td>
+        </tr>`).join('');
+      recIngSel.innerHTML=buildRecOptions();
+      updateRecUnidad();
+    }
+
+    function renderReceta(){
+      let total=0;
+      tblRecBody.innerHTML=receta.items.map((it,i)=>{
+        const nombre= it.tipo==='I'
+          ? ingredientes[it.idx].nombre
+          : load('recetas')[it.idx].nombre+' (porción)';
+        const costo=getItemCost(it);
+        total+=costo;
+        return `
+        <tr>
+          <td>${nombre}</td><td>${it.cantidad} ${it.unidad}</td><td>$${costo.toFixed(2)}</td>
+          <td class="contenedor-btn">
+            <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
+            <button class="action-btn btn-danger"  onclick="delRecItem(${i})">🗑️</button>
+          </td>
+        </tr>`;
+      }).join('');
+      bottomCost.textContent=total.toFixed(2);
+    }
+
+    // CRUD Ingredientes
+    document.getElementById('btn-add-ingrediente').onclick=()=>{
+      const n=document.getElementById('ing-nombre'),
+            c=document.getElementById('ing-cantidad'),
+            p=document.getElementById('ing-precio');
+      if(!n.value.trim()) return showMessage('Falta nombre.');
+      if(!c.value||c.value<=0) return showMessage('Cantidad > 0.');
+      if(!p.value||p.value<=0) return showMessage('Precio > 0.');
+      const nuevo={ nombre:n.value.trim(), cantidad:+c.value, unidad:ingUniSel.value, precio:+p.value };
+      if(editIngIndex===null){
+        ingredientes.push(nuevo); showMessage('Ingrediente guardado.',false);
+      } else {
+        ingredientes[editIngIndex]=nuevo;
+        showMessage('Ingrediente actualizado.',false);
+        editIngIndex=null;
+        document.getElementById('btn-add-ingrediente').textContent='Guardar Ingrediente';
+      }
+      save('ingredientes',ingredientes);
+      [n,c,p].forEach(x=>x.value='');
+      renderIngredientes(); renderReceta();
+    };
+    window.startEditIng=i=>{
+      const ing=ingredientes[i];
+      document.getElementById('ing-nombre').value=ing.nombre;
+      document.getElementById('ing-cantidad').value=ing.cantidad;
+      ingUniSel.value=ing.unidad;
+      document.getElementById('ing-precio').value=ing.precio;
+      editIngIndex=i;
+      document.getElementById('btn-add-ingrediente').textContent='Actualizar Ingrediente';
+    };
+    window.deleteIng=i=>{
+      ingredientes.splice(i,1);
+      save('ingredientes',ingredientes);
+      showMessage('Ingrediente eliminado.',false);
+      renderIngredientes(); renderReceta();
+    };
+
+    // CRUD Items de Receta
+    btnAddRecIt.onclick=()=>{
+      if(!recIngSel.value) return showMessage('Selecciona un elemento.');
+      const tipo=recIngSel.value.charAt(0),
+            idx =+recIngSel.value.slice(1),
+            c   =+document.getElementById('rec-cantidad').value;
+      if(!c||c<=0) return showMessage('Cantidad > 0.');
+      const item={ tipo, idx, cantidad:c, unidad:recUniSel.value };
+      if(editRecItemIdx===null) receta.items.push(item);
+      else {
+        receta.items[editRecItemIdx]=item;
+        editRecItemIdx=null;
+        btnAddRecIt.textContent='Agregar a Receta';
+      }
+      renderReceta();
+      recIngSel.value='';
+      recUniSel.innerHTML=buildOptions();
+      document.getElementById('rec-cantidad').value='';
+      btnOpenModal.textContent='Seleccionar elemento…';
+    };
+    window.startEditRecItem=i=>{
+      const it=receta.items[i];
+      editRecItemIdx=i;
+      recIngSel.value=it.tipo+it.idx;
+      updateRecUnidad();
+      document.getElementById('rec-cantidad').value=it.cantidad;
+      const label= it.tipo==='I'
+        ? ingredientes[it.idx].nombre
+        : load('recetas')[it.idx].nombre+' (receta)';
+      btnOpenModal.textContent=label;
+      btnAddRecIt.textContent='Actualizar Item';
+    };
+    window.delRecItem=i=>{ receta.items.splice(i,1); renderReceta(); };
+
+    // Editar receta completa
+    window.startEditRec=i=>{
+      tabRec.click();
+      const r=load('recetas')[i];
+      receta=JSON.parse(JSON.stringify(r));
+      editRecIndex=i; editRecItemIdx=null;
+      btnOpenModal.textContent='Seleccionar elemento…';
+      btnAddRecIt.textContent='Agregar a Receta';
+      renderReceta(); updateRecUnidad();
+    };
+
+    // Modal genérico de selección
+    function openModal(){ modalBkp.style.display='flex'; }
+    function closeModal(){ modalBkp.style.display='none'; modalBody.innerHTML=''; modalFooter.innerHTML=''; }
+    btnCloseMod.onclick=closeModal;
+
+    function showSelectModal(items, onSelect, isRecList=false){
+      modalTitle.textContent = isRecList ? 'Recetas Guardadas' : 'Seleccionar Ingrediente/Receta';
+      modalBody.innerHTML = `<ul class="item-list">${items.map((it,i)=>`
+        <li data-value="${it.value||''}" data-index="${it.index!=null?it.index:i}">
+          <span>${it.label}</span>
+          ${isRecList
+            ? `<button class="action-btn btn-primary" data-action="edit">✏️</button>
+               <button class="action-btn btn-danger"  data-action="delete">🗑️</button>`
+            : ``
+          }
+        </li>`).join('')}</ul>`;
+      modalFooter.innerHTML = '';
+      modalBody.querySelectorAll('li').forEach(li=>{
+        const idx = +li.dataset.index;
+        if(isRecList){
+          li.querySelectorAll('button').forEach(btn=>{
+            btn.onclick=e=>{
+              e.stopPropagation();
+              if(btn.dataset.action==='edit'){ startEditRec(idx); closeModal(); }
+              else                            { deleteRec(idx); li.remove(); }
+            };
+          });
+        } else {
+          li.onclick=()=>{
+            const val = li.dataset.value;
+            const label = li.querySelector('span').textContent;
+            onSelect({ value: val, label });
+            closeModal();
+          };
+        }
+      });
+      openModal();
+    }
+
+    // Botón "Seleccionar elemento…"
+    btnOpenModal.onclick = ()=>{
+      const recs = load('recetas');
+      const items = [
+        ...ingredientes.map((ing,i)=>({ label: ing.nombre, value: `I${i}` })),
+        ...recs.map((r,i)=>({ label: r.nombre,     value: `R${i}` }))
+      ];
+      showSelectModal(items, sel=>{
+        recIngSel.value = sel.value;
+        updateRecUnidad();
+        btnOpenModal.textContent = sel.label;
+      }, false);
+    };
+
+    // Modal para guardar/actualizar receta
+    function showSaveRecipeModal(){
+      modalTitle.textContent = editRecIndex===null ? 'Guardar Receta' : 'Actualizar Receta';
+      modalBody.innerHTML = `
+        <label>Nombre de la receta</label>
+        <input id="modal-rec-nombre" placeholder="Ej. Limonada">
+        <label>Porciones que rinde</label>
+        <input type="number" id="modal-rec-porciones" min="1" step="1" placeholder="Ej. 4">
+      `;
+      modalFooter.innerHTML = `
+        <button id="modal-cancel" class="btn-secondary">Cancelar</button>
+        <button id="modal-confirm" class="btn-primary">Confirmar</button>
+      `;
+      const inNombre = document.getElementById('modal-rec-nombre');
+      const inPorc   = document.getElementById('modal-rec-porciones');
+      if(editRecIndex!==null){ inNombre.value=receta.nombre; inPorc.value=receta.porciones; }
+      document.getElementById('modal-cancel').onclick=closeModal;
+      document.getElementById('modal-confirm').onclick=()=>{
+        const nombre    = inNombre.value.trim();
+        const porciones = parseInt(inPorc.value,10);
+        if(!nombre)                     return showMessage('La receta necesita nombre.');
+        if(isNaN(porciones)||porciones<1) return showMessage('Porciones debe ser ≥ 1.');
+        receta.nombre    = nombre;
+        receta.porciones = porciones;
+        const todas = load('recetas');
+        if(editRecIndex===null){ todas.push(receta); showMessage('Receta guardada.',false); }
+        else                   { todas[editRecIndex]=receta; showMessage('Receta actualizada.',false); }
+        save('recetas',todas);
+        receta={ nombre:'',porciones:1,items:[] };
+        editRecIndex=null; editRecItemIdx=null;
+        btnAddRecIt.textContent='Agregar a Receta';
+        btnOpenModal.textContent='Seleccionar elemento…';
+        renderReceta();
+        closeModal();
+      };
+      openModal();
+    }
+    btnSaveRec.onclick = showSaveRecipeModal;
+
+    // Ver recetas con costo total
+    btnViewRecs.onclick = ()=>{
+      const todas = load('recetas');
+      const recs = todas.map((r,i)=>{
+        const costoTotal = r.items.reduce((s,it)=>s+getItemCost(it),0).toFixed(2);
+        return { label: `${r.nombre} — ${r.items.length} ítems — Costo: $${costoTotal}`, index: i };
+      });
+      showSelectModal(recs, null, true);
+    };
+
+    // Eliminar receta
+    window.deleteRec = i=>{
+      const arr = load('recetas');
+      arr.splice(i,1);
+      save('recetas',arr);
+      showMessage('Receta eliminada.',false);
+    };
+
+    // Init
+    renderIngredientes();
+    renderReceta();
+    recIngSel.addEventListener('change', updateRecUnidad);
   </script>
-  <script src="contactform/contactform.js"></script>
-
-
 </body>
-
 </html>
