@@ -68,8 +68,8 @@
     <h1>IAEgo Veta</h1>
     <div id="mensaje"></div>
     <div class="tabs">
-      <div class="tab active" id="tab-ingredientes">Ingredientes</div>
-      <div class="tab" id="tab-recetas">Recetas</div>
+      <div class="tab active" id="tab-ingredientes">+ Ingredientes</div>
+      <div class="tab" id="tab-recetas">+ Recetas</div>
     </div>
 
     <!-- Ingredientes -->
@@ -87,12 +87,10 @@
         <input type="number" id="ing-precio" min="0" step="any" placeholder="Ej. 30">
         <button id="btn-add-ingrediente" class="btn-primary">Guardar Ingrediente</button>
       </fieldset>
-
       <div class="contenedor-btn" style="margin-bottom:1rem">
         <button id="btn-export-ingredientes" class="btn-secondary action-btn">Exportar Ingredientes</button>
         <button id="btn-import-ingredientes" class="btn-secondary action-btn">Importar Ingredientes</button>
       </div>
-
       <h2>Ingredientes Guardados</h2>
       <div class="table-wrapper">
         <table id="tbl-ingredientes">
@@ -146,51 +144,122 @@
   </div>
 
   <script>
-    const showMessage=(txt,error=true)=>{
-      const m=document.getElementById('mensaje');
-      m.textContent=txt;
-      m.style.background= error? '#fdecea':'#e9f7ef';
-      m.style.color     = error? '#c0392b':'#27ae60';
-      m.style.border    = error? '1px solid #e74c3c':'1px solid #2ecc71';
-      m.style.display   ='block';
+    // Auxiliares
+    const showMessage = (txt, error = true) => {
+      const m = document.getElementById('mensaje');
+      m.textContent = txt;
+      m.style.background = error ? '#fdecea' : '#e9f7ef';
+      m.style.color      = error ? '#c0392b' : '#27ae60';
+      m.style.border     = error ? '1px solid #e74c3c' : '1px solid #2ecc71';
+      m.style.display    = 'block';
       clearTimeout(m._t);
-      m._t=setTimeout(()=>m.style.display='none',4000);
+      m._t = setTimeout(() => m.style.display = 'none', 4000);
     };
+    const load = k => JSON.parse(localStorage.getItem(k) || '[]');
+    const save = (k, d) => localStorage.setItem(k, JSON.stringify(d));
 
-    const tabIng=document.getElementById('tab-ingredientes'),
-          tabRec=document.getElementById('tab-recetas'),
-          secIng=document.getElementById('sect-ingredientes'),
-          secRec=document.getElementById('sect-recetas');
-    tabIng.onclick=()=>{ tabIng.classList.add('active'); tabRec.classList.remove('active'); secIng.classList.add('active'); secRec.classList.remove('active'); };
-    tabRec.onclick=()=>{ tabRec.classList.add('active'); tabIng.classList.remove('active'); secRec.classList.add('active'); secIng.classList.remove('active'); };
+    // Estado global
+    let ingredientes = load('ingredientes'),
+        recetas      = load('recetas'),
+        receta       = { nombre:'', porciones:1, items:[] },
+        editIngIndex = null,
+        editRecIndex = null,
+        editRecItemIdx = null;
 
-    const unidades={ masa:['mg','g','kg'], volumen:['ml','l'], medida:['tsp','tbsp','cup'], unidad:['u'] };
-    const factors={ mg:1/1000,g:1,kg:1000,ml:1,l:1000,tsp:5,tbsp:15,cup:240,u:1 };
-    const load=k=>JSON.parse(localStorage.getItem(k)||'[]');
-    const save=(k,d)=>localStorage.setItem(k,JSON.stringify(d));
+    // Modal genérico
+    const modalBkp    = document.getElementById('modal-backdrop'),
+          modalTitle  = document.getElementById('modal-title'),
+          modalBody   = document.getElementById('modal-body'),
+          modalFooter = document.getElementById('modal-footer'),
+          btnCloseMod = document.getElementById('modal-close');
+    function openModal(){ modalBkp.style.display = 'flex'; }
+    function closeModal(){ modalBkp.style.display = 'none'; modalBody.innerHTML = ''; modalFooter.innerHTML = ''; }
+    btnCloseMod.onclick = closeModal;
 
-    let ingredientes=load('ingredientes'),
-        receta={ nombre:'',porciones:1,items:[] },
-        editIngIndex=null, editRecIndex=null, editRecItemIdx=null;
+    // Modal bloqueo eliminación
+    function showUsageModal(type, idx, usedRecIndices) {
+      modalTitle.textContent = `No se puede eliminar ${type}`;
+      modalBody.innerHTML = `
+        <p>Está en uso en las siguientes recetas. Elíminalas primero:</p>
+        <ul id="usage-list" class="item-list">
+          ${usedRecIndices.map(i =>
+            `<li data-rec-index="${i}">
+              <span>${load('recetas')[i].nombre}</span>
+              <button class="action-btn btn-danger btn-del-rec" data-index="${i}">🗑️ Eliminar receta</button>
+            </li>`
+          ).join('')}
+        </ul>
+      `;
+      modalFooter.innerHTML = '';
+      modalBody.querySelectorAll('.btn-del-rec').forEach(btn => {
+        btn.onclick = e => {
+          e.stopPropagation();
+          const recIdx = +btn.dataset.index;
+          deleteRecConfirmed(recIdx);
+          btn.closest('li').remove();
+          if (!modalBody.querySelector('#usage-list li')) {
+            modalBody.innerHTML = `<p>Ya no hay recetas que usen este ${type}. ¿Confirmas eliminar?</p>`;
+            modalFooter.innerHTML = `<button id="confirm-delete-original" class="btn-primary">Eliminar ${type}</button>`;
+            document.getElementById('confirm-delete-original').onclick = () => {
+              if (type === 'ingrediente') deleteIngConfirmed(idx);
+              else deleteRecConfirmed(idx);
+              closeModal();
+            };
+          }
+        };
+      });
+      openModal();
+    }
 
-    const ingUniSel   =document.getElementById('ing-unidad'),
-          recUniSel   =document.getElementById('rec-unidad'),
-          recIngSel   =document.getElementById('rec-ingrediente'),
-          tblIngBody  =document.querySelector('#tbl-ingredientes tbody'),
-          tblRecBody  =document.querySelector('#tbl-receta tbody'),
-          btnAddRecIt =document.getElementById('btn-add-receta-ing'),
-          btnOpenModal=document.getElementById('btn-open-modal'),
-          btnSaveRec  =document.getElementById('btn-save-receta'),
-          btnViewRecs =document.getElementById('btn-view-recipes-bottom'),
-          bottomCost  =document.getElementById('bottom-costo-total'),
-          modalBkp    =document.getElementById('modal-backdrop'),
-          modalTitle  =document.getElementById('modal-title'),
-          modalBody   =document.getElementById('modal-body'),
-          modalFooter =document.getElementById('modal-footer'),
-          btnCloseMod =document.getElementById('modal-close'),
-          btnExportIng=document.getElementById('btn-export-ingredientes'),
-          btnImportIng=document.getElementById('btn-import-ingredientes');
+    // Borrar ingrediente
+    window.deleteIng = i => {
+      const usadas = load('recetas')
+        .map((r,ri) => r.items.some(it => it.tipo==='I'&&it.idx===i)?ri:-1)
+        .filter(ri => ri!==-1);
+      if (usadas.length) return showUsageModal('ingrediente', i, usadas);
+      deleteIngConfirmed(i);
+    };
+    function deleteIngConfirmed(i) {
+      ingredientes.splice(i,1);
+      save('ingredientes',ingredientes);
+      const todas = load('recetas').map(r=> {
+        r.items = r.items
+          .filter(it=>!(it.tipo==='I'&&it.idx===i))
+          .map(it=>{ if(it.tipo==='I'&&it.idx>i) it.idx--; return it; });
+        return r;
+      });
+      save('recetas',todas);
+      showMessage('Ingrediente eliminado.', false);
+      renderIngredientes();
+      renderReceta();
+    }
 
+    // Borrar receta
+    window.deleteRec = i => {
+      const usadas = load('recetas')
+        .map((r,ri) => r.items.some(it => it.tipo==='R'&&it.idx===i)?ri:-1)
+        .filter(ri => ri!==-1);
+      if (usadas.length) return showUsageModal('receta', i, usadas);
+      deleteRecConfirmed(i);
+    };
+    function deleteRecConfirmed(i) {
+      const arr = load('recetas');
+      arr.splice(i,1);
+      arr.forEach(r=> {
+        r.items = r.items
+          .filter(it=>!(it.tipo==='R'&&it.idx===i))
+          .map(it=>{ if(it.tipo==='R'&&it.idx>i) it.idx--; return it; });
+      });
+      save('recetas',arr);
+      showMessage('Receta eliminada.', false);
+      renderReceta();
+    }
+
+    // Unidades y factors
+    const unidades = { masa:['mg','g','kg'], volumen:['ml','l'], medida:['tsp','tbsp','cup'], unidad:['u'] };
+    const factors  = { mg:1/1000,g:1,kg:1000,ml:1,l:1000,tsp:5,tbsp:15,cup:240,u:1 };
+
+    // Builds
     function optionsFrom(arr){ return arr.map(o=>`<option value="${o}">${o}</option>`).join(''); }
     function buildOptions(){
       return [
@@ -200,45 +269,74 @@
         `<optgroup label="Unidad">${optionsFrom(unidades.unidad)}</optgroup>`
       ].join('');
     }
-    ingUniSel.innerHTML=buildOptions();
-    recUniSel.innerHTML=buildOptions();
-
     function buildRecOptions(){
-      const recs=load('recetas');
-      const ingOpts=ingredientes.map((ing,i)=>`<option value="I${i}">${ing.nombre}</option>`).join('');
-      const recOpts=recs.map((r,i)=>`<option value="R${i}">${r.nombre}</option>`).join('');
+      const recs = load('recetas');
+      const ingOpts = ingredientes.map((ing,i)=>`<option value="I${i}">${ing.nombre}</option>`).join('');
+      const recOpts = recs.map((r,i)=>{
+        return editRecIndex===i?'':`<option value="R${i}">${r.nombre}</option>`;
+      }).join('');
       return `<optgroup label="Ingredientes">${ingOpts}</optgroup><optgroup label="Recetas">${recOpts}</optgroup>`;
     }
 
-    function updateRecUnidad(){
-      const sel=recIngSel.value;
-      if(!sel){ recUniSel.innerHTML=buildOptions(); return; }
-      const tipo=sel[0], idx=+sel.slice(1);
-      if(tipo==='I'){
-        const base=ingredientes[idx].unidad;
-        let opts,label;
-        if(unidades.masa.includes(base)){ opts=unidades.masa; label='Masa'; }
-        else if(unidades.volumen.includes(base)){ opts=unidades.volumen.concat(unidades.medida); label='Vol/Med'; }
-        else if(unidades.medida.includes(base)){ opts=unidades.medida.concat(unidades.volumen); label='Med/Vol'; }
-        else { opts=unidades.unidad; label='Unidad'; }
-        recUniSel.innerHTML=`<optgroup label="${label}">${optionsFrom(opts)}</optgroup>`;
-      } else {
-        recUniSel.innerHTML='<option value="porción">porción</option>';
-      }
-    }
-
-    function getItemCost(it){
-      if(it.tipo==='I'){
-        const ing=ingredientes[it.idx], pu=ing.precio/(factors[ing.unidad]*ing.cantidad);
+    // Costo con ciclos protegidos
+    function getItemCost(it, visited=[]) {
+      if (it.tipo==='I') {
+        const ing=ingredientes[it.idx];
+        const pu=ing.precio/(factors[ing.unidad]*ing.cantidad);
         return pu*(factors[it.unidad]*it.cantidad);
       } else {
-        const sub=load('recetas')[it.idx], tot=sub.items.reduce((s,x)=>s+getItemCost(x),0);
+        if (visited.includes(it.idx)) return 0;
+        const sub=load('recetas')[it.idx], nextV=visited.concat(it.idx);
+        const tot=sub.items.reduce((s,x)=>s+getItemCost(x,nextV),0);
         return (tot/sub.porciones)*it.cantidad;
       }
     }
 
+    // DOM selectors
+    const ingUniSel   = document.getElementById('ing-unidad'),
+          recUniSel   = document.getElementById('rec-unidad'),
+          recIngSel   = document.getElementById('rec-ingrediente'),
+          tblIngBody  = document.querySelector('#tbl-ingredientes tbody'),
+          tblRecBody  = document.querySelector('#tbl-receta tbody'),
+          btnAddRecIt = document.getElementById('btn-add-receta-ing'),
+          btnOpenModal= document.getElementById('btn-open-modal'),
+          btnSaveRec  = document.getElementById('btn-save-receta'),
+          btnViewRecs = document.getElementById('btn-view-recipes-bottom'),
+          bottomCost  = document.getElementById('bottom-costo-total'),
+          btnExportIng= document.getElementById('btn-export-ingredientes'),
+          btnImportIng= document.getElementById('btn-import-ingredientes'),
+          tabIng      = document.getElementById('tab-ingredientes'),
+          tabRec      = document.getElementById('tab-recetas'),
+          secIng      = document.getElementById('sect-ingredientes'),
+          secRec      = document.getElementById('sect-recetas');
+
+    // Init selects
+    ingUniSel.innerHTML = buildOptions();
+    recUniSel.innerHTML = buildOptions();
+
+    // Tabs
+    tabIng.onclick = () => {
+      tabIng.classList.add('active');
+      tabRec.classList.remove('active');
+      secIng.classList.add('active');
+      secRec.classList.remove('active');
+    };
+    tabRec.onclick = () => {
+      editRecIndex = null;
+      receta = { nombre:'', porciones:1, items:[] };
+      btnOpenModal.textContent = 'Seleccionar elemento…';
+      btnAddRecIt.textContent = 'Agregar ingrediente';
+      renderReceta();
+      tabRec.classList.add('active');
+      tabIng.classList.remove('active');
+      secRec.classList.add('active');
+      secIng.classList.remove('active');
+    };
+
+    // Render ingredientes
     function renderIngredientes(){
-      tblIngBody.innerHTML=ingredientes.map((ing,i)=>`
+      ingredientes = load('ingredientes');
+      tblIngBody.innerHTML = ingredientes.map((ing,i)=>`
         <tr>
           <td>${ing.nombre}</td>
           <td>${ing.cantidad} ${ing.unidad}</td>
@@ -248,70 +346,73 @@
             <button class="action-btn btn-danger" onclick="deleteIng(${i})">🗑️</button>
           </td>
         </tr>`).join('');
-      recIngSel.innerHTML=buildRecOptions();
+      recIngSel.innerHTML = buildRecOptions();
       updateRecUnidad();
     }
 
+    // Render receta
     function renderReceta(){
-      let total=0;
-      tblRecBody.innerHTML=receta.items.map((it,i)=>{
-        const nombre= it.tipo==='I'
+      let total = 0;
+      tblRecBody.innerHTML = receta.items.map((it,i)=> {
+        const nombre = it.tipo==='I'
           ? ingredientes[it.idx].nombre
-          : load('recetas')[it.idx].nombre+' (porción)';
-        const costo=getItemCost(it);
-        total+=costo;
+          : load('recetas')[it.idx].nombre + ' (porción)';
+        const costo = getItemCost(it);
+        total += costo;
         return `
-        <tr>
-          <td>${nombre}</td>
-          <td>${it.cantidad} ${it.unidad}</td>
-          <td>$${costo.toFixed(2)}</td>
-          <td class="contenedor-btn">
-            <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
-            <button class="action-btn btn-danger"  onclick="delRecItem(${i})">🗑️</button>
-          </td>
-        </tr>`;}).join('');
-      bottomCost.textContent=total.toFixed(2);
+          <tr>
+            <td>${nombre}</td>
+            <td>${it.cantidad} ${it.unidad}</td>
+            <td>$${costo.toFixed(2)}</td>
+            <td class="contenedor-btn">
+              <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
+              <button class="action-btn btn-danger" onclick="delRecItem(${i})">🗑️</button>
+            </td>
+          </tr>`;
+      }).join('');
+      bottomCost.textContent = total.toFixed(2);
     }
 
-    document.getElementById('btn-add-ingrediente').onclick=()=>{
-      const n=document.getElementById('ing-nombre'),
-            c=document.getElementById('ing-cantidad'),
-            p=document.getElementById('ing-precio');
+    // Añadir/editar ingrediente
+    document.getElementById('btn-add-ingrediente').onclick = ()=>{
+      const n = document.getElementById('ing-nombre'),
+            c = document.getElementById('ing-cantidad'),
+            p = document.getElementById('ing-precio');
       if(!n.value.trim()) return showMessage('Falta nombre.');
       if(!c.value||c.value<=0) return showMessage('Cantidad > 0.');
       if(!p.value||p.value<=0) return showMessage('Precio > 0.');
-      const nuevo={ nombre:n.value.trim(), cantidad:+c.value, unidad:ingUniSel.value, precio:+p.value };
+      const nuevo = { nombre:n.value.trim(), cantidad:+c.value, unidad:ingUniSel.value, precio:+p.value };
+      ingredientes = load('ingredientes');
       if(editIngIndex===null){
-        ingredientes.push(nuevo); showMessage('Ingrediente guardado.',false);
+        ingredientes.push(nuevo);
+        showMessage('Ingrediente guardado.', false);
       } else {
-        ingredientes[editIngIndex]=nuevo; showMessage('Ingrediente actualizado.',false);
-        editIngIndex=null; document.getElementById('btn-add-ingrediente').textContent='Guardar Ingrediente';
+        ingredientes[editIngIndex] = nuevo;
+        showMessage('Ingrediente actualizado.', false);
+        editIngIndex = null;
+        document.getElementById('btn-add-ingrediente').textContent='Guardar Ingrediente';
       }
       save('ingredientes',ingredientes);
       [n,c,p].forEach(x=>x.value='');
-      renderIngredientes(); renderReceta();
+      renderIngredientes();
+      renderReceta();
     };
-
-    window.startEditIng=i=>{
-      const ing=ingredientes[i];
-      document.getElementById('ing-nombre').value=ing.nombre;
-      document.getElementById('ing-cantidad').value=ing.cantidad;
-      ingUniSel.value=ing.unidad;
-      document.getElementById('ing-precio').value=ing.precio;
-      editIngIndex=i;
+    window.startEditIng = i=>{
+      const ing = load('ingredientes')[i];
+      document.getElementById('ing-nombre').value = ing.nombre;
+      document.getElementById('ing-cantidad').value = ing.cantidad;
+      ingUniSel.value = ing.unidad;
+      document.getElementById('ing-precio').value = ing.precio;
+      editIngIndex = i;
       document.getElementById('btn-add-ingrediente').textContent='Actualizar Ingrediente';
     };
 
-    window.deleteIng=i=>{
-      ingredientes.splice(i,1);
-      save('ingredientes',ingredientes);
-      showMessage('Ingrediente eliminado.',false);
-      renderIngredientes(); renderReceta();
-    };
-
-    btnAddRecIt.onclick=()=>{
+    // Añadir/editar ítem de receta
+    btnAddRecIt.onclick = ()=>{
       if(!recIngSel.value) return showMessage('Selecciona un elemento.');
-      const tipo=recIngSel.value[0], idx=+recIngSel.value.slice(1), c=+document.getElementById('rec-cantidad').value;
+      const tipo = recIngSel.value[0],
+            idx  = +recIngSel.value.slice(1),
+            c    = +document.getElementById('rec-cantidad').value;
       if(!c||c<=0) return showMessage('Cantidad > 0.');
       const item={ tipo, idx, cantidad:c, unidad:recUniSel.value };
       if(editRecItemIdx===null) receta.items.push(item);
@@ -321,44 +422,43 @@
         btnAddRecIt.textContent='Agregar ingrediente';
       }
       renderReceta();
-      recIngSel.value=''; recUniSel.innerHTML=buildOptions();
+      recIngSel.value='';
+      recUniSel.innerHTML=buildOptions();
       document.getElementById('rec-cantidad').value='';
       btnOpenModal.textContent='Seleccionar elemento…';
     };
-
     window.startEditRecItem=i=>{
       const it=receta.items[i];
       editRecItemIdx=i;
-      recIngSel.value=it.tipo+it.idx; updateRecUnidad();
+      recIngSel.value=it.tipo+it.idx;
+      updateRecUnidad();
       document.getElementById('rec-cantidad').value=it.cantidad;
-      btnOpenModal.textContent= it.tipo==='I'
+      btnOpenModal.textContent=it.tipo==='I'
         ? ingredientes[it.idx].nombre
         : load('recetas')[it.idx].nombre+' (receta)';
       btnAddRecIt.textContent='Actualizar ingrediente';
     };
-
     window.delRecItem=i=>{ receta.items.splice(i,1); renderReceta(); };
 
+    // Editar receta completa
     window.startEditRec=i=>{
+      editRecIndex=i;
+      receta=JSON.parse(JSON.stringify(load('recetas')[i]));
       tabRec.click();
-      const r=load('recetas')[i];
-      receta=JSON.parse(JSON.stringify(r));
-      editRecIndex=i; editRecItemIdx=null;
       btnOpenModal.textContent='Seleccionar elemento…';
       btnAddRecIt.textContent='Agregar ingrediente';
-      renderReceta(); updateRecUnidad();
+      renderReceta();
+      updateRecUnidad();
     };
 
-    function openModal(){ modalBkp.style.display='flex'; }
-    function closeModal(){ modalBkp.style.display='none'; modalBody.innerHTML=''; modalFooter.innerHTML=''; }
-    btnCloseMod.onclick=closeModal;
-
+    // Modal de selección
     function showSelectModal(items,onSelect,isRecList=false){
       modalTitle.textContent=isRecList?'Recetas Guardadas':'Seleccionar Ingrediente/Receta';
       modalBody.innerHTML='<ul class="item-list">'+items.map((it,i)=>`
         <li data-value="${it.value||''}" data-index="${it.index!=null?it.index:i}">
           <span>${it.label}</span>
-          ${isRecList?`<button class="action-btn btn-primary" data-action="edit">✏️</button>
+          ${isRecList?`
+            <button class="action-btn btn-primary" data-action="edit">✏️</button>
             <button class="action-btn btn-danger" data-action="delete">🗑️</button>`:''}
         </li>`).join('')+'</ul>';
       modalFooter.innerHTML='';
@@ -368,8 +468,13 @@
           li.querySelectorAll('button').forEach(btn=>{
             btn.onclick=e=>{
               e.stopPropagation();
-              if(btn.dataset.action==='edit'){ startEditRec(idx); closeModal(); }
-              else{ deleteRec(idx); li.remove(); }
+              if(btn.dataset.action==='edit'){
+                startEditRec(idx);
+                closeModal();
+              } else {
+                deleteRec(idx);
+                li.remove();
+              }
             };
           });
         } else {
@@ -383,17 +488,18 @@
     }
 
     btnOpenModal.onclick=()=>{
-      const recs=load('recetas');
       const items=[
-        ...ingredientes.map((ing,i)=>({ label:ing.nombre, value:`I${i}` })),
-        ...recs.map((r,i)=>({ label:r.nombre, value:`R${i}` }))
+        ...load('ingredientes').map((ing,i)=>({ label:ing.nombre, value:`I${i}` })),
+        ...load('recetas').map((r,i)=>({ label:r.nombre, value:`R${i}` }))
       ];
       showSelectModal(items,sel=>{
-        recIngSel.value=sel.value; updateRecUnidad();
+        recIngSel.value=sel.value;
+        updateRecUnidad();
         btnOpenModal.textContent=sel.label;
       },false);
     };
 
+    // Guardar receta
     function showSaveRecipeModal(){
       modalTitle.textContent=editRecIndex===null?'Guardar Receta':'Actualizar Receta';
       modalBody.innerHTML=`
@@ -413,44 +519,41 @@
         if(!nombre) return showMessage('La receta necesita nombre.');
         if(isNaN(porciones)||porciones<1) return showMessage('Porciones debe ser ≥ 1.');
         receta.nombre=nombre; receta.porciones=porciones;
-        const todas=load('recetas');
-        if(editRecIndex===null){ todas.push(receta); showMessage('Receta guardada.',false); }
-        else{ todas[editRecIndex]=receta; showMessage('Receta actualizada.',false); }
-        save('recetas',todas);
+        recetas=load('recetas');
+        if(editRecIndex===null){ recetas.push(receta); showMessage('Receta guardada.',false); }
+        else{ recetas[editRecIndex]=receta; showMessage('Receta actualizada.',false); }
+        save('recetas',recetas);
         receta={ nombre:'',porciones:1,items:[] };
         editRecIndex=null; editRecItemIdx=null;
         btnAddRecIt.textContent='Agregar ingrediente';
         btnOpenModal.textContent='Seleccionar elemento…';
-        renderReceta(); closeModal();
+        renderReceta();
+        closeModal();
       };
       openModal();
     }
     btnSaveRec.onclick=showSaveRecipeModal;
 
+    // Ver recetas guardadas
     btnViewRecs.onclick=()=>{
       const todas=load('recetas');
-      const recs=todas.map((r,i)=>{
-        const costoTotal=r.items.reduce((s,it)=>s+getItemCost(it),0).toFixed(2);
-        return{ label:`${r.nombre} — ${r.items.length} ítems — Costo: $${costoTotal}`, index:i };
-      });
+      const recs=todas.map((r,i)=>({
+        label:`${r.nombre} — ${r.items.length} ítems — Costo: $${r.items.reduce((s,it)=>s+getItemCost(it,[i]),0).toFixed(2)}`,
+        index:i
+      }));
       showSelectModal(recs,null,true);
     };
 
-    window.deleteRec=i=>{
-      const arr=load('recetas'); arr.splice(i,1); save('recetas',arr);
-      showMessage('Receta eliminada.',false);
-    };
-
+    // Export/Import ingredientes
     btnExportIng.onclick=()=>{
       try{
-        const json=JSON.stringify(ingredientes,null,2);
+        const json=JSON.stringify(load('ingredientes'),null,2);
         navigator.clipboard.writeText(json).then(
           ()=>showMessage('Ingredientes copiados al portapapeles.',false),
           ()=>showMessage('No se pudo copiar al portapapeles.')
         );
       }catch{ showMessage('Error al generar JSON.'); }
     };
-
     btnImportIng.onclick=()=>{
       modalTitle.textContent='Importar Ingredientes';
       modalBody.innerHTML=`<p>Pega aquí el JSON exportado:</p><textarea id="import-json"></textarea>`;
@@ -467,8 +570,10 @@
             if(typeof ing.nombre!=='string'||typeof ing.cantidad!=='number'
             ||typeof ing.unidad!=='string'||typeof ing.precio!=='number') throw '';
           }
-          ingredientes=arr; save('ingredientes',ingredientes);
-          renderIngredientes(); renderReceta();
+          save('ingredientes',arr);
+          ingredientes=arr;
+          renderIngredientes();
+          renderReceta();
           showMessage('Ingredientes importados correctamente.',false);
           closeModal();
         }catch{ showMessage('JSON inválido o formato incorrecto.'); }
@@ -476,9 +581,28 @@
       openModal();
     };
 
+    // Actualizar unidad al cambiar
+    function updateRecUnidad(){
+      const sel=recIngSel.value;
+      if(!sel){ recUniSel.innerHTML=buildOptions(); return; }
+      const tipo=sel[0], idx=+sel.slice(1);
+      if(tipo==='I'){
+        const base=ingredientes[idx].unidad;
+        let opts,label;
+        if(unidades.masa.includes(base)){ opts=unidades.masa; label='Masa'; }
+        else if(unidades.volumen.includes(base)){ opts=unidades.volumen; label='Volumen'; }
+        else if(unidades.medida.includes(base)){ opts=unidades.medida; label='Medidas'; }
+        else { opts=unidades.unidad; label='Unidad'; }
+        recUniSel.innerHTML=`<optgroup label="${label}">${optionsFrom(opts)}</optgroup>`;
+      } else {
+        recUniSel.innerHTML='<option value="porción">porción</option>';
+      }
+    }
+    recIngSel.addEventListener('change', updateRecUnidad);
+
+    // Inicial
     renderIngredientes();
     renderReceta();
-    recIngSel.addEventListener('change', updateRecUnidad);
   </script>
 </body>
 </html>
