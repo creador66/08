@@ -176,7 +176,7 @@
     function closeModal(){ modalBkp.style.display = 'none'; modalBody.innerHTML = ''; modalFooter.innerHTML = ''; }
     btnCloseMod.onclick = closeModal;
 
-    // Modal bloqueo eliminación
+    // Modal de bloqueo eliminación
     function showUsageModal(type, idx, usedRecIndices) {
       modalTitle.textContent = `No se puede eliminar ${type}`;
       modalBody.innerHTML = `
@@ -186,10 +186,8 @@
             `<li data-rec-index="${i}">
               <span>${load('recetas')[i].nombre}</span>
               <button class="action-btn btn-danger btn-del-rec" data-index="${i}">🗑️ Eliminar receta</button>
-            </li>`
-          ).join('')}
-        </ul>
-      `;
+            </li>`).join('')}
+        </ul>`;
       modalFooter.innerHTML = '';
       modalBody.querySelectorAll('.btn-del-rec').forEach(btn => {
         btn.onclick = e => {
@@ -253,6 +251,7 @@
       save('recetas',arr);
       showMessage('Receta eliminada.', false);
       renderReceta();
+      renderIngredientes();
     }
 
     // Unidades y factors
@@ -368,7 +367,7 @@
               <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
               <button class="action-btn btn-danger" onclick="delRecItem(${i})">🗑️</button>
             </td>
-          </tr>`;
+          </tr>`; 
       }).join('');
       bottomCost.textContent = total.toFixed(2);
     }
@@ -523,6 +522,11 @@
         if(editRecIndex===null){ recetas.push(receta); showMessage('Receta guardada.',false); }
         else{ recetas[editRecIndex]=receta; showMessage('Receta actualizada.',false); }
         save('recetas',recetas);
+
+        // *** REPuebla el select para incluir la nueva receta ***
+        recIngSel.innerHTML = buildRecOptions();
+        updateRecUnidad();
+
         receta={ nombre:'',porciones:1,items:[] };
         editRecIndex=null; editRecItemIdx=null;
         btnAddRecIt.textContent='Agregar ingrediente';
