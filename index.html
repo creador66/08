@@ -572,13 +572,24 @@
 
     // Ver recetas guardadas
     btnViewRecs.onclick = ()=>{
-      const todas = load('recetas');
-      const recs = todas.map((r,i)=>({
-        label: `${r.nombre} — ${r.items.length} ítems — Costo: $${r.items.reduce((s,it)=>s+getItemCost(it,[r.id]),0).toFixed(2)}`,
-        index: i
-      }));
-      showSelectModal(recs,null,true);
+  const todas = load('recetas');
+  const recs = todas.map((r,i)=>{
+    // calculamos costo total de la receta
+    const costoTotal = r.items
+      .reduce((s,it)=> s + getItemCost(it, [r.id]), 0);
+    // y lo dividimos entre las porciones
+    const costoPorcion = costoTotal / r.porciones;
+    return {
+      index: i,
+      label: 
+        `${r.nombre} — Rinde: ${r.porciones} porciones — ` +
+        `Costo total: $${costoTotal.toFixed(2)} — ` +
+        `Costo por porción: $${costoPorcion.toFixed(2)}`
     };
+  });
+  showSelectModal(recs, null, true);
+};
+
 
     // Export / Import ingredientes
     btnExportIng.onclick = ()=>{
