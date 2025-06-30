@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>IAEgo Veta</title>
+  <title>IAEgo Costeo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -70,7 +70,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>IAEgo Veta</h1>
+    <h1>IAEgo Costeo</h1>
     <div id="mensaje"></div>
     <div class="tabs">
       <div class="tab active" id="tab-ingredientes">+ Ingredientes</div>
@@ -96,6 +96,9 @@
         <button id="btn-export-ingredientes" class="btn-secondary action-btn">Exportar Ingredientes</button>
         <button id="btn-import-ingredientes" class="btn-secondary action-btn">Importar Ingredientes</button>
         <!-- NUEVOS BOTONES -->
+
+<button id="btn-clear-all" class="btn-danger action-btn">🗑️ Borrar todo</button>
+
         <button id="btn-copy-ingredientes-list" class="btn-secondary action-btn">Copiar Lista Ingredientes</button>
         <button id="btn-copy-recetas-info" class="btn-secondary action-btn">Copiar Recetas Detalladas</button>
       </div>
@@ -618,6 +621,38 @@
       };
       openModal();
     };
+    // 1. Selecciona el botón
+const btnClearAll = document.getElementById('btn-clear-all');
+
+// 2. Función que muestra el modal de confirmación
+function showClearAllModal() {
+  modalTitle.textContent = 'Confirmar borrado total';
+  modalBody.innerHTML = `
+    <p>¿Estás seguro de que deseas eliminar <strong>todos</strong> los ingredientes y recetas?</p>
+  `;
+  modalFooter.innerHTML = `
+    <button id="clearall-cancel" class="btn-secondary">Cancelar</button>
+    <button id="clearall-confirm" class="btn-danger">Eliminar todo</button>
+  `;
+  // Cancelar
+  document.getElementById('clearall-cancel').onclick = closeModal;
+  // Confirmar
+  document.getElementById('clearall-confirm').onclick = () => {
+    ingredientes = [];
+    recetas = [];
+    save('ingredientes', ingredientes);
+    save('recetas', recetas);
+    renderIngredientes();
+    renderReceta();
+    showMessage('Se han eliminado todas las recetas e ingredientes.', false);
+    closeModal();
+  };
+  openModal();
+}
+
+// 3. Enlaza el botón al modal de confirmación
+btnClearAll.onclick = showClearAllModal;
+
     // --- Copiar lista de ingredientes formateada ---
     const btnCopyIngList = document.getElementById('btn-copy-ingredientes-list');
     btnCopyIngList.onclick = () => {
@@ -636,29 +671,74 @@
 
     // --- Copiar recetas con desglose de costos ---
     const btnCopyRecInfo = document.getElementById('btn-copy-recetas-info');
-    btnCopyRecInfo.onclick = () => {
-      const recs = load('recetas');
-      if (!recs.length) {
-        return showMessage('No hay recetas para copiar.');
-      }
-      const textoRecetas = recs.map(r => {
-        const header = `Receta: ${r.nombre} (Rinde: ${r.porciones} porciones)`;
-        const items = r.items.map(it => {
-          // calculamos costo usando la función existente
-          const costo = getItemCost(it);
-          const label = it.tipo === 'I'
-            ? ingredientes.find(x => x.id === it.id).nombre
-            : recetas.find(x => x.id === it.id).nombre + ' (subreceta)';
-          return `  • ${label}: ${it.cantidad} ${it.unidad} — $${costo.toFixed(2)}`;
-        });
-        const costoTotal = r.items.reduce((sum, it) => sum + getItemCost(it), 0);
-        return [header, ...items, `Costo total receta: $${costoTotal.toFixed(2)}`].join('\n');
-      }).join('\n\n');
-      const fullText = 'Detalles de Recetas:\n\n' + textoRecetas;
-      navigator.clipboard.writeText(fullText)
-        .then(() => showMessage('Recetas detalladas copiadas.', false))
-        .catch(() => showMessage('Error al copiar las recetas.'));
-    };
+    btnCopyRecInfo.onclick = async () => {
+  const recs = load('recetas');
+  if (!recs.length) {
+    return showMessage('No hay recetas para copiar.');
+  }
+
+  // Construimos HTML y Markdown
+  const htmlRecetas = recs.map(r => {
+    // Cálculo de costos
+    const costosItems = r.items.map(it => {
+      const costoIt = getItemCost(it);
+      const label = it.tipo === 'I'
+        ? ingredientes.find(x => x.id === it.id).nombre
+        : recetas.find(x => x.id === it.id).nombre + ' (subreceta)';
+      return `<li>${label}: ${it.cantidad} ${it.unidad} — $${costoIt.toFixed(2)}</li>`;
+    }).join('\n');
+
+    const costoTotal = r.items.reduce((sum, it) => sum + getItemCost(it), 0);
+    const costoPorcion = costoTotal / r.porciones;
+
+    return `
+<h3>${r.nombre}</h3>
+<p>Rinde: ${r.porciones} porciones</p>
+<ul>
+${costosItems}
+</ul>
+<p><strong>Costo total:</strong> $${costoTotal.toFixed(2)}</p>
+<p><strong>Costo por porción:</strong> $${costoPorcion.toFixed(2)}</p>
+`;
+  }).join('\n');
+
+  const mdRecetas = recs.map(r => {
+    const lineItems = r.items.map(it => {
+      const costoIt = getItemCost(it);
+      const label = it.tipo === 'I'
+        ? ingredientes.find(x => x.id === it.id).nombre
+        : recetas.find(x => x.id === it.id).nombre + ' (subreceta)';
+      return `- ${label}: ${it.cantidad} ${it.unidad} — $${costoIt.toFixed(2)}`;
+    }).join('\n');
+
+    const costoTotal = r.items.reduce((sum, it) => sum + getItemCost(it), 0);
+    const costoPorcion = costoTotal / r.porciones;
+
+    return `
+${r.nombre}
+Rinde: ${r.porciones} porciones
+
+${lineItems}
+
+*Costo total:* $${costoTotal.toFixed(2)}  
+*Costo por porción:* $${costoPorcion.toFixed(2)}
+`;
+  }).join('\n');
+
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': new Blob([htmlRecetas], { type: 'text/html' }),
+        'text/plain': new Blob([mdRecetas],  { type: 'text/plain' })
+      })
+    ]);
+    showMessage('Recetas detalladas copiadas con costo por porción.', false);
+  } catch (err) {
+    // Fallback a plain text
+    await navigator.clipboard.writeText(mdRecetas);
+    showMessage('No se pudo copiar en HTML; se copió en texto plano con costo por porción.', false);
+  }
+};
 
     // Actualizar unidad al cambiar selección
     function updateRecUnidad(){
