@@ -9,7 +9,7 @@
     :root {
       --bg:#F9FAFB; --surface:#FFF;
       --primary:#5A67D8; --primary-hover:#4C51BF;
-      --secondary:#2DD4BF; --secondary-hover:#14B8A6;
+      --secondary:#2D99A8; --secondary-hover:#14B8A6;
       --error:#F56565; --success:#48BB78;
       --text:#2D3748; --text-light:#718096;
       --radius:12px; --shadow-sm:rgba(0,0,0,0.05) 0 1px 2px;
@@ -45,11 +45,77 @@
   gap: 3px;
 }
 
-    .table-wrapper{overflow-x:auto;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:var(--spacing)}
-    table{width:100%;border-collapse:collapse;min-width:600px}
-    th,td{padding:.75rem;text-align:left;border-bottom:1px solid #E2E8F0;white-space:nowrap;font-size:.95rem}
-    th{background:var(--primary);color:#fff;position:sticky;top:0}
-    tr:hover td{background:#F1F5F9}
+
+
+
+.cards-container {
+  display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 5px;
+  
+  margin-top: var(--spacing);
+}
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s, box-shadow .2s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  margin-bottom: .5rem;
+}
+.card-body {
+  flex: 1;
+  color: var(--text-light);
+  font-size: .9rem;
+}
+.card-footer {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  margin-top: .5rem;
+}
+.card-item {
+  display: flex;
+  justify-content: space-between;
+  padding: .4rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.card-item:last-child {
+  border-bottom: none;
+}
+.card-item-label {
+  font-weight: 500;
+}
+.card-item-value {
+  text-align: right;
+}
+.cost-badge {
+  background: var(--primary);
+  color: #fff;
+  padding: .2rem .5rem;
+  border-radius: 10px;
+  font-size: .85rem;
+  font-weight: 500;
+}
+
+
+
+
+
+
+
     .flex{display:flex;gap:.5rem;flex-wrap:wrap}
     section{display:none}
     section.active{display:block}
@@ -104,13 +170,9 @@
       </div>
 
       
-      <h2>Ingredientes Guardados</h2>
-      <div class="table-wrapper">
-        <table id="tbl-ingredientes">
-          <thead><tr><th>Nombre</th><th>Cantidad</th><th>Precio</th><th>Acción</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+     <h2>Ingredientes Guardados</h2>
+<div id="cards-ingredientes" class="cards-container"></div>
+
     </section>
 
     <!-- Recetas -->
@@ -130,13 +192,9 @@
           <button id="btn-save-receta" class="btn-primary">Guardar Receta</button>
         </div>
       </fieldset>
-      <h3>Ingredientes de la receta</h3>
-      <div class="table-wrapper">
-        <table id="tbl-receta">
-          <thead><tr><th>Elemento</th><th>Cantidad</th><th>Costo</th><th>Acción</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+     <h3>Ingredientes de la receta</h3>
+<div id="cards-receta-items" class="cards-container"></div>
+
     </section>
   </div>
 
@@ -193,36 +251,66 @@
 
     // Mostrar modal de uso antes de eliminar
     function showUsageModal(type, id, usedRecIndices) {
-      modalTitle.textContent = `No se puede eliminar ${type}`;
-      modalBody.innerHTML = `
-        <p>Está en uso en las siguientes recetas. Elíminalas primero:</p>
-        <ul id="usage-list" class="item-list">
-          ${usedRecIndices.map(i =>
-            `<li data-rec-index="${i}">
-               <span>${recetas[i].nombre}</span>
-               <button class="action-btn btn-danger btn-del-rec" data-index="${i}">🗑️ Eliminar receta</button>
-             </li>`).join('')}
-        </ul>`;
-      modalFooter.innerHTML = '';
-      modalBody.querySelectorAll('.btn-del-rec').forEach(btn => {
-        btn.onclick = e => {
-          e.stopPropagation();
-          const recIdx = +btn.dataset.index;
-          deleteRecConfirmed(recetas[recIdx].id);
-          btn.closest('li').remove();
-          if (!modalBody.querySelector('#usage-list li')) {
-            modalBody.innerHTML = `<p>Ya no hay recetas que usen este ${type}. ¿Confirmas eliminar?</p>`;
-            modalFooter.innerHTML = `<button id="confirm-delete-original" class="btn-primary">Eliminar ${type}</button>`;
-            document.getElementById('confirm-delete-original').onclick = () => {
-              if (type === 'ingrediente') deleteIngConfirmed(id);
-              else deleteRecConfirmed(id);
-              closeModal();
-            };
-          }
+  modalTitle.textContent = `No se puede eliminar ${type}`;
+  
+  // Contenedor de tarjetas
+  modalBody.innerHTML = `
+    <p>Está en uso en las siguientes recetas. Elíminalas primero:</p>
+    <div id="usage-cards" class="cards-container">
+      ${usedRecIndices.map(idx => {
+        const rec = recetas[idx];
+        return `
+          <div class="card" data-rec-index="${idx}">
+            <div class="card-header">
+              <span>${rec.nombre}</span>
+            </div>
+            <div class="card-body">
+              <div class="card-item">
+                <span class="card-item-label">Porciones:</span>
+                <span class="card-item-value">${rec.porciones}</span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="action-btn btn-danger btn-del-rec" data-index="${idx}">
+                🗑️ Eliminar receta
+              </button>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+  
+  modalFooter.innerHTML = '';
+
+  // Handler para cada botón de borrar receta
+  modalBody.querySelectorAll('.btn-del-rec').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const recIdx = +btn.dataset.index;
+      // Elimina la receta referenciada
+      deleteRecConfirmed(recetas[recIdx].id);
+      // Quita la tarjeta
+      const card = btn.closest('.card');
+      card.remove();
+      // Si ya no quedan tarjetas, mostramos confirmación final
+      const remaining = modalBody.querySelectorAll('.card').length;
+      if (remaining === 0) {
+        modalBody.innerHTML = `
+          <p>Ya no hay recetas que usen este ${type}. ¿Confirmas eliminar?</p>`;
+        modalFooter.innerHTML = `
+          <button id="confirm-delete-original" class="btn-primary">
+            Eliminar ${type}
+          </button>`;
+        document.getElementById('confirm-delete-original').onclick = () => {
+          if (type === 'ingrediente') deleteIngConfirmed(id);
+          else deleteRecConfirmed(id);
+          closeModal();
         };
-      });
-      openModal();
-    }
+      }
+    };
+  });
+
+  openModal();
+}
 
     // Eliminar ingrediente
     window.deleteIng = id => {
@@ -347,44 +435,85 @@
 };
 
     // Render ingredientes
-    function renderIngredientes(){
-      ingredientes = load('ingredientes');
-      tblIngBody.innerHTML = ingredientes.map(ing=>`
-        <tr>
-          <td>${ing.nombre}</td>
-          <td>${ing.cantidad} ${ing.unidad}</td>
-          <td>$${ing.precio.toFixed(2)}</td>
-          <td class="contenedor-btn">
-            <button class="action-btn btn-primary" onclick="startEditIng('${ing.id}')">✏️</button>
-            <button class="action-btn btn-danger"  onclick="deleteIng('${ing.id}')">🗑️</button>
-          </td>
-        </tr>`).join('');
-      recIngSel.innerHTML = buildRecOptions();
-      updateRecUnidad();
-    }
+ function renderIngredientes() {
+  ingredientes = load('ingredientes');
+  const container = document.getElementById('cards-ingredientes');
+  container.innerHTML = ingredientes.map(ing => {
+    // costo unitario
+    const pu = ing.precio / (factors[ing.unidad] * ing.cantidad);
+    return `
+      <div class="card">
+        <div class="card-header">
+          <span>${ing.nombre}</span>
+          <span class="cost-badge">$${pu.toFixed(2)}/${ing.unidad}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-item">
+            <span class="card-item-label">Cantidad:</span>
+            <span class="card-item-value">${ing.cantidad} ${ing.unidad}</span>
+          </div>
+          <div class="card-item">
+            <span class="card-item-label">Precio total:</span>
+            <span class="card-item-value">$${ing.precio.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="action-btn btn-primary" onclick="startEditIng('${ing.id}')">✏️</button>
+          <button class="action-btn btn-danger"  onclick="deleteIng('${ing.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  // Y actualizas también el select de ingredientes en recetas
+  recIngSel.innerHTML = buildRecOptions();
+  updateRecUnidad();
+}
 
     // Render receta
-    function renderReceta(){
-      let total = 0;
-      tblRecBody.innerHTML = receta.items.map((it,i)=>{
-        const nombre = it.tipo==='I'
-          ? ingredientes.find(x=>x.id===it.id).nombre
-          : (recetas.find(r=>r.id===it.id).nombre + ' (porción)');
-        const costo = getItemCost(it);
-        total += costo;
-        return `
-          <tr>
-            <td>${nombre}</td>
-            <td>${it.cantidad} ${it.unidad}</td>
-            <td>$${costo.toFixed(2)}</td>
-            <td class="contenedor-btn">
-              <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
-              <button class="action-btn btn-danger"  onclick="delRecItem(${i})">🗑️</button>
-            </td>
-          </tr>`;
-      }).join('');
-      bottomCost.textContent = total.toFixed(2);
+    function renderReceta() {
+  // recarga el objeto receta con items actualizados
+  receta = receta; // ya la tienes en estado global
+  const container = document.getElementById('cards-receta-items');
+  let total = 0;
+
+  container.innerHTML = receta.items.map((it, i) => {
+    // Determinar nombre y costo
+    let nombre, costo;
+    if (it.tipo === 'I') {
+      const ing = ingredientes.find(x => x.id === it.id);
+      nombre = ing.nombre;
+      costo = getItemCost(it);
+    } else {
+      const sub = recetas.find(r => r.id === it.id);
+      nombre = `${sub.nombre} (subreceta)`;
+      costo = getItemCost(it);
     }
+    total += costo;
+
+    return `
+      <div class="card" data-idx="${i}">
+        <div class="card-header">
+          <span>${nombre}</span>
+          <span class="cost-badge">$${costo.toFixed(2)}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-item">
+            <span class="card-item-label">Cantidad:</span>
+            <span class="card-item-value">${it.cantidad} ${it.unidad}</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="action-btn btn-primary" onclick="startEditRecItem(${i})">✏️</button>
+          <button class="action-btn btn-danger"  onclick="delRecItem(${i})">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Actualiza el costo total en el footer inferior
+  bottomCost.textContent = total.toFixed(2);
+}
 
     // Añadir/editar ingrediente
     document.getElementById('btn-add-ingrediente').onclick = ()=>{
@@ -472,44 +601,112 @@
       updateRecUnidad();
     };
 
-    // Modal de selección
-    function showSelectModal(items,onSelect,isRecList=false){
-      modalTitle.textContent = isRecList ? 'Recetas Guardadas' : 'Seleccionar Ingrediente/Receta';
-      modalBody.innerHTML = '<ul class="item-list">' + items.map((it,i)=>
-        `<li data-value="${it.value||''}" data-index="${it.index!=null?it.index:i}">
-           <span>${it.label}</span>` +
-           (isRecList
-             ? `<button class="action-btn btn-primary" data-action="edit">✏️</button>
-                <button class="action-btn btn-danger"  data-action="delete">🗑️</button>`
-             : ''
-           ) +
-        `</li>`
-      ).join('') + '</ul>';
-      modalFooter.innerHTML = '';
-      modalBody.querySelectorAll('li').forEach(li=>{
-        const idx = +li.dataset.index;
-        if(isRecList){
-          li.querySelectorAll('button').forEach(btn=>{
-            btn.onclick = e=>{
-              e.stopPropagation();
-              if(btn.dataset.action==='edit'){
-                startEditRec(recetas[idx].id);
-                closeModal();
-              } else {
-                deleteRec(recetas[idx].id);
-                li.remove();
-              }
-            };
-          });
+function showSelectModal(items, onSelect, isRecList = false) {
+  modalTitle.textContent = isRecList
+    ? 'Recetas Guardadas'
+    : 'Seleccionar Ingrediente/Receta';
+
+  // Construimos la vista en tarjetas
+  modalBody.innerHTML = `<div class="cards-container">` +
+    items.map((it, idx) => {
+      const isRec = isRecList;
+      let headerLabel = it.label;
+      let badge = '';
+      let bodyHtml = '';
+
+      if (!isRec) {
+        if (it.value.startsWith('I')) {
+          const id = +it.value.slice(1);
+          const ing = ingredientes.find(x => x.id === id);
+          const pu = ing.precio / (factors[ing.unidad] * ing.cantidad);
+          badge = `<span class="cost-badge">$${pu.toFixed(2)}/${ing.unidad}</span>`;
+          bodyHtml = `
+            <div class="card-item">
+              <span class="card-item-label">Cantidad:</span>
+              <span class="card-item-value">${ing.cantidad} ${ing.unidad}</span>
+            </div>
+            <div class="card-item">
+              <span class="card-item-label">Precio:</span>
+              <span class="card-item-value">$${ing.precio.toFixed(2)}</span>
+            </div>`;
         } else {
-          li.onclick = ()=>{
-            onSelect({ value: li.dataset.value, label: li.querySelector('span').textContent });
-            closeModal();
-          };
+          // it.value es 'R{id}', mostramos nombre + porciones
+          const id = +it.value.slice(1);
+          const rec = recetas.find(r => r.id === id);
+          badge = `<span class="cost-badge">Rinde ${rec.porciones}</span>`;
+          bodyHtml = `
+            <div class="card-item">
+              <span class="card-item-label">Porciones:</span>
+              <span class="card-item-value">${rec.porciones}</span>
+            </div>`;
         }
-      });
-      openModal();
+      } else {
+        // Recetas guardadas: it.index apunta a posición en recetas[]
+        const rec = recetas[it.index];
+        const costoTotal = rec.items.reduce((s, x) => s + getItemCost(x), 0);
+        const costoPorcion = costoTotal / rec.porciones;
+        badge = `<span class="cost-badge">$${costoPorcion.toFixed(2)}/porción</span>`;
+        // Opcional: show número de ítems
+        bodyHtml = `
+          <div class="card-item">
+            <span class="card-item-label">Items:</span>
+            <span class="card-item-value">${rec.items.length}</span>
+          </div>
+          <div class="card-item">
+            <span class="card-item-label">Costo total:</span>
+            <span class="card-item-value">$${costoTotal.toFixed(2)}</span>
+          </div>`;
+      }
+
+      return `
+        <div class="card" data-value="${it.value||''}" data-index="${it.index!=null?it.index:idx}">
+          <div class="card-header">
+            <span>${headerLabel}</span>
+            ${badge}
+          </div>
+          <div class="card-body">
+            ${bodyHtml}
+          </div>
+          <div class="card-footer">
+            ${isRecList
+              ? `<button class="action-btn btn-primary" data-action="edit">✏️</button>
+                 <button class="action-btn btn-danger"  data-action="delete">🗑️</button>`
+              : ``
+            }
+          </div>
+        </div>`;
+    }).join('') +
+  `</div>`;
+  modalFooter.innerHTML = '';
+
+  // Enlazamos eventos
+  modalBody.querySelectorAll('.card').forEach(card => {
+    const value = card.dataset.value;
+    const index = +card.dataset.index;
+
+    if (!isRecList) {
+      // Selección de ingrediente/receta para armar
+      card.onclick = () => {
+        onSelect({ value, label: card.querySelector('.card-header span').textContent });
+        closeModal();
+      };
+    } else {
+      // Recetas guardadas: editar o borrar
+      card.querySelector('[data-action="edit"]').onclick = e => {
+        e.stopPropagation();
+        startEditRec(recetas[index].id);
+        closeModal();
+      };
+      card.querySelector('[data-action="delete"]').onclick = e => {
+        e.stopPropagation();
+        deleteRec(recetas[index].id);
+        card.remove();
+      };
     }
+  });
+
+  openModal();
+}
 
     btnOpenModal.onclick = ()=>{
       const items = [
@@ -570,21 +767,17 @@
     }
     btnSaveRec.onclick = showSaveRecipeModal;
 
-    // Ver recetas guardadas
-    btnViewRecs.onclick = ()=>{
+// Ver recetas guardadas
+btnViewRecs.onclick = () => {
   const todas = load('recetas');
-  const recs = todas.map((r,i)=>{
-    // calculamos costo total de la receta
-    const costoTotal = r.items
-      .reduce((s,it)=> s + getItemCost(it, [r.id]), 0);
-    // y lo dividimos entre las porciones
+  const recs = todas.map((r, i) => {
+    const costoTotal   = r.items.reduce((s, it) => s + getItemCost(it, [r.id]), 0);
     const costoPorcion = costoTotal / r.porciones;
     return {
       index: i,
-      label: 
-        `${r.nombre} — Rinde: ${r.porciones} porciones — ` +
-        `Costo total: $${costoTotal.toFixed(2)} — ` +
-        `Costo por porción: $${costoPorcion.toFixed(2)}`
+      label: `${r.nombre}-Rin:${r.porciones}por`,  // nombre y rinde juntos
+      costoTotal,
+      costoPorcion
     };
   });
   showSelectModal(recs, null, true);
