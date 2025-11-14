@@ -53,7 +53,8 @@
     .slider-btn.prev{left:12px}
     .slider-btn.next{right:12px}
     .slider-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:5}
-    .slider-dots button{width:10px;height:10px;border-radius:50%;border:0;background:rgba(6,12,20,0.12);cursor:pointer}
+ 
+    .slider-dots button{width:5px;height:20px;border-radius:50%;border:0;background:rgba(6,12,20,0.12);cursor:pointer}
     .slider-dots button.active{background:var(--accent)}
     .hero-thumb{width:110px;text-align:center;flex:0 0 110px;height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px}
     .hero-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
@@ -110,8 +111,7 @@
       </div>
     </div>
 
-    <div style="display:flex; gap:10px; align-items:center;">
-      <div class="search-bar" role="search" aria-label="Buscar noticias">
+    <div class="search-bar" role="search" aria-label="Buscar noticias">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#6b7788" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <input id="searchInput" placeholder="Buscar jugador, equipo o noticia..." aria-label="Buscar noticias">
         <button class="btn" id="clearBtn" title="Limpiar búsqueda" style="display:none">✕</button>
@@ -144,29 +144,30 @@
         <div class="categories" id="categories"></div>
       </div>
 
-      <div class="panel" aria-label="Enlaces rápidos">
-        <h4 style="margin:0 0 8px 0">Enlaces rápidos (12)</h4>
-        <div class="quick-grid" id="quickLinks">
-          <!-- Ahora enlazan a article.html?id=ID -->
-          <a href="article.html?id=1" class="quick-link" data-id="1" aria-label="Enlace 1 - Final Copa">1 · Final Copa</a>
-          <a href="article.html?id=2" class="quick-link" data-id="2" aria-label="Enlace 2 - Tigres vs Halcones">2 · Tigres vs Halcones</a>
-          <a href="article.html?id=3" class="quick-link" data-id="3" aria-label="Enlace 3 - Abierto de la Costa">3 · Abierto de la Costa</a>
-          <a href="article.html?id=4" class="quick-link" data-id="4" aria-label="Enlace 4 - Lista Olímpica">4 · Lista Olímpica</a>
-          <a href="article.html?id=5" class="quick-link" data-id="5" aria-label="Enlace 5 - Derbi Local">5 · Derbi Local</a>
-          <a href="article.html?id=6" class="quick-link" data-id="6" aria-label="Enlace 6 - Liga Femenina">6 · Liga Femenina</a>
+<div class="panel" aria-label="Quick Links">
+  <h4 style="margin:0 0 8px 0">Quick Links (12)</h4>
+  <div class="quick-grid" id="quickLinks">
+    <!-- Now they link to article.html?id=ID -->
+    <a href="article.html?id=1" class="quick-link" data-id="1" aria-label="Link 1 - Cup Final">1 · Cup Final</a>
+    <a href="article.html?id=2" class="quick-link" data-id="2" aria-label="Link 2 - Tigers vs Hawks">2 · Tigers vs Hawks</a>
+    <a href="article.html?id=3" class="quick-link" data-id="3" aria-label="Link 3 - Coastal Open">3 · Coastal Open</a>
+    <a href="article.html?id=4" class="quick-link" data-id="4" aria-label="Link 4 - Olympic Roster">4 · Olympic Roster</a>
+    <a href="article.html?id=5" class="quick-link" data-id="5" aria-label="Link 5 - Local Derby">5 · Local Derby</a>
+    <a href="article.html?id=6" class="quick-link" data-id="6" aria-label="Link 6 - Women's League">6 · Women's League</a>
 
-          <a href="article.html?id=7" class="quick-link" data-id="7" aria-label="Enlace 7 - Archivo">7 · Archivo</a>
-          <a href="article.html?id=8" class="quick-link" data-id="8" aria-label="Enlace 8 - Estadísticas">8 · Estadísticas</a>
-          <a href="article.html?id=9" class="quick-link" data-id="9" aria-label="Enlace 9 - Calendario">9 · Calendario</a>
-          <a href="article.html?id=10" class="quick-link" data-id="10" aria-label="Enlace 10 - Opinión">10 · Opinión</a>
-          <a href="article.html?id=11" class="quick-link" data-id="11" aria-label="Enlace 11 - Multimedia">11 · Multimedia</a>
-          <a href="article.html?id=12" class="quick-link" data-id="12" aria-label="Enlace 12 - Entrevista">12 · Entrevista</a>
-        </div>
-      </div>
+    <a href="article.html?id=7" class="quick-link" data-id="7" aria-label="Link 7 - Archive">7 · Archive</a>
+    <a href="article.html?id=8" class="quick-link" data-id="8" aria-label="Link 8 - Statistics">8 · Statistics</a>
+    <a href="article.html?id=9" class="quick-link" data-id="9" aria-label="Link 9 - Schedule">9 · Schedule</a>
+    <a href="article.html?id=10" class="quick-link" data-id="10" aria-label="Link 10 - Opinion">10 · Opinion</a>
+    <a href="article.html?id=11" class="quick-link" data-id="11" aria-label="Link 11 - Multimedia">11 · Multimedia</a>
+    <a href="article.html?id=12" class="quick-link" data-id="12" aria-label="Link 12 - Interview">12 · Interview</a>
+  </div>
+</div>
+
 
       <div class="panel" aria-label="Resultados rápidos">
         <h4 style="margin:0 0 8px 0">Resultados rápidos</h4>
-        <p class="muted" id="quickResults">Goles del día, estadísticas y highlights (datos ficticios).</p>
+        <p class="muted" id="quickResults">Goals of the Day, Stats, and Highlights (fictional data).</p>
         <ul style="padding-left:18px;margin:8px 0 0 0">
           <li><strong>Fútbol:</strong> Atléticos 3 - 2 Titanes</li>
           <li><strong>Baloncesto:</strong> Tigres 98 - 95 Halcones</li>
@@ -183,19 +184,19 @@
   <script>
     // Datos ficticios (duplicables en article.html)
     const articles = [
-      { id:1,title:"Atléticos remontan y se coronan en la Copa Continental",category:"Fútbol",author:"Laura Méndez",date:"2025-11-12",excerpt:"Gol en el 88' y penal en el 92' hicieron vibrar al Estadio Central. Crónica del encuentro.",content:"Atléticos de Río protagonizaron una remontada histórica ante Titanes con goles de R. Silva y M. Ortega. El técnico destacó la garra del equipo y la mentalidad sólida en los minutos finales.",thumbText:"FÚTBOL",score:"3-2",tags:["Remontada","Final"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
-      { id:2,title:"Tigres sobreviven al final para vencer a los Halcones",category:"Baloncesto",author:"Carlos Pinto",date:"2025-11-12",excerpt:"Partido cerrado en el que una bandeja decidida definió el marcador en tiempo extra.",content:"Los Tigres lograron una victoria agónica 98-95 en un duelo que se decidió en tiempo extra. El MVP fue J. Romero con 34 puntos.",thumbText:"BASQ",score:"98-95",tags:["NBA","Playoffs"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
-      { id:3,title:"Victoria sorpresa en el Abierto de la Costa",category:"Tenis",author:"María López",date:"2025-11-11",excerpt:"La joven promesa derrotó a la favorita en dos sets y avanza a semifinales.",content:"En un partido sin precedentes, A. Rivera venció en sets corridos y mostró gran solidez desde el fondo de la pista. La lluvia interrumpió la jornada más tarde.",thumbText:"TENIS",score:null,tags:["Torneo","Sorpresa"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
-      { id:4,title:"Equipo Olímpico anuncia su lista provisional",category:"Atletismo",author:"Diego Herrera",date:"2025-11-10",excerpt:"La federación dio a conocer 18 atletas en la lista provisional rumbo a los próximos juegos.",content:"El comité técnico seleccionó a los atletas con mejores marcas del año. Las pruebas definitivas se confirmarán el próximo mes.",thumbText:"ATLET",score:null,tags:["Selección","Juegos"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
-      { id:5,title:"Derbi local termina en empate con polémica arbitral",category:"Fútbol",author:"Sofía Ramos",date:"2025-11-09",excerpt:"Una tarjeta roja y un gol anulado encendieron a ambas hinchadas.",content:"El encuentro entre Club Norte y Sur FC terminó 1-1 tras decisiones discutibles del colegiado. Los entrenadores reclamaron revisión VAR.",thumbText:"DERBI",score:"1-1",tags:["Polémica","VAR"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
-      { id:6,title:"Liga femenina: récord de asistencia en la jornada 8",category:"Fútbol",author:"Paola Jiménez",date:"2025-11-08",excerpt:"Las gradas se llenaron para el clásico femenino; un gran paso para la liga.",content:"Con una entrada histórica, la liga femenina registró su mayor asistencia de la temporada, lo que genera expectativas positivas para el crecimiento del deporte.",thumbText:"FEM",score:null,tags:["Femenil","Asistencia"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
-      { id:7,title:"Archivo histórico: centenario del Club Norte",category:"Historia",author:"Ana Torres",date:"2025-11-07",excerpt:"El club celebra 100 años con una exposición de trofeos y recuerdos.",content:"La conmemoración contó con exjugadores, directivos y miles de aficionados que recordaron los momentos más importantes del centenario.",thumbText:"ARCH",score:null,tags:["Centenario","Historia"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE7&s=10" },
-      { id:8,title:"Informe: estadísticas de la temporada — máximos goleadores",category:"Estadísticas",author:"Pablo Vélez",date:"2025-11-06",excerpt:"Ranking de máximos anotadores, asistencias y minutos jugados hasta la jornada 12.",content:"El informe muestra cambios significativos en la tabla de goleadores y destaca a jugadores que mejoraron su rendimiento en los últimos meses.",thumbText:"DATA",score:null,tags:["Estadísticas","Informe"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE8&s=10" },
-      { id:9,title:"Calendario actualizado: fechas y horarios de la próxima fase",category:"Calendario",author:"Lucía Ortega",date:"2025-11-05",excerpt:"La liga publicó las nuevas fechas tras reprogramaciones por clima y compromisos internacionales.",content:"Se confirmaron las fechas de la fase decisiva. Varios equipos tendrán jornadas compactas y se esperan ajustes por TV.",thumbText:"CAL",score:null,tags:["Calendario","Liga"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE9&s=10" },
-      { id:10,title:"Columna: ¿hacia dónde va el fútbol local?",category:"Opinión",author:"Martín Delgado",date:"2025-11-04",excerpt:"Análisis sobre la estructura de ligas, formación de juveniles y sostenibilidad económica.",content:"En esta columna se argumenta la necesidad de reformas en formación juvenil y adaptación a nuevos modelos de negocio.",thumbText:"OPIN",score:null,tags:["Opinión","Columna"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE10&s=10" },
-      { id:11,title:"Galería: las mejores jugadas de la jornada",category:"Multimedia",author:"Equipo Multimedia",date:"2025-11-03",excerpt:"Un repaso visual con las acciones más destacadas y los goles más vistosos.",content:"La selección incluye remates impresionantes, atajadas y celebraciones que dieron color a la jornada.",thumbText:"MULTI",score:null,tags:["Galería","Highlights"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE11&s=10" },
-      { id:12,title:"Entrevista: el presidente habla sobre la próxima temporada",category:"Entrevista",author:"Marcos Gil",date:"2025-11-02",excerpt:"Conversamos con el presidente del club sobre metas, inversiones y proyecto a largo plazo.",content:"En la entrevista se abordan temas de infraestructura, fichajes y la apuesta por las categorías formativas.",thumbText:"ENT",score:null,tags:["Entrevista","Directiva"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE12&s=10" }
-    ];
+  { id:1,title:"Atléticos come from behind to win Continental Cup",category:"Soccer",author:"Laura Méndez",date:"2025-11-12",excerpt:"88th-minute goal and a 92nd-minute penalty brought the Central Stadium to life. Match report.",content:"Atléticos de Río staged a historic comeback against Titanes with goals from R. Silva and M. Ortega. The coach praised the team's grit and solid mentality in the final minutes.",thumbText:"SOCCER",score:"3-2",tags:["Comeback","Final"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+  { id:2,title:"Tigers survive late stretch to beat the Hawks",category:"Basketball",author:"Carlos Pinto",date:"2025-11-12",excerpt:"Tightly contested game decided by a clutch layup in overtime.",content:"The Tigers clinched an agonizing 98-95 victory in a duel that was decided in overtime. MVP was J. Romero with 34 points.",thumbText:"BASK",score:"98-95",tags:["NBA","Playoffs"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+  { id:3,title:"Surprise win at the Coastal Open",category:"Tennis",author:"María López",date:"2025-11-11",excerpt:"Young prospect defeated the favorite in straight sets and advances to the semifinals.",content:"In an unprecedented match, A. Rivera beat the top seed in straight sets and showed great consistency from the baseline. Rain interrupted the schedule later in the day.",thumbText:"TENNIS",score:null,tags:["Tournament","Upset"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+  { id:4,title:"Olympic team announces provisional roster",category:"Athletics",author:"Diego Herrera",date:"2025-11-10",excerpt:"The federation revealed 18 athletes on the provisional list ahead of the upcoming Games.",content:"The technical committee selected the athletes with the best marks of the year. Final trials will be confirmed next month.",thumbText:"ATHLET",score:null,tags:["Selection","Games"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+  { id:5,title:"Local derby ends in draw amid refereeing controversy",category:"Soccer",author:"Sofía Ramos",date:"2025-11-09",excerpt:"A red card and a disallowed goal set both stands alight.",content:"The match between Club Norte and Sur FC finished 1-1 after contentious decisions by the referee. Coaches demanded VAR review.",thumbText:"DERBY",score:"1-1",tags:["Controversy","VAR"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+  { id:6,title:"Women's league: attendance record in matchday 8",category:"Soccer",author:"Paola Jiménez",date:"2025-11-08",excerpt:"Stands filled for the women's classic; a major step forward for the league.",content:"With a historic turnout, the women's league recorded its highest attendance of the season, raising positive expectations for the sport's growth.",thumbText:"WOMEN",score:null,tags:["Women's","Attendance"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+  { id:7,title:"Historical archive: Club Norte celebrates centenary",category:"History",author:"Ana Torres",date:"2025-11-07",excerpt:"The club marks 100 years with an exhibition of trophies and memorabilia.",content:"The commemoration included former players, directors and thousands of fans who remembered the club's most important moments of the centenary.",thumbText:"HIST",score:null,tags:["Centenary","History"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRWPFuNWdkKOCBlcoVLVcczk1jkzT6X7x2SuCUz98QiI-iLe6sCeCLVpAa&s=10" },
+  { id:8,title:"Report: season statistics — top scorers",category:"Statistics",author:"Pablo Vélez",date:"2025-11-06",excerpt:"Ranking of top scorers, assists and minutes played through matchday 12.",content:"The report shows significant changes in the scorers' table and highlights players who improved their performance in recent months.",thumbText:"DATA",score:null,tags:["Statistics","Report"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROLDRyQCIycTdjyyRLKEOOoljemKOIC9Nk7w&usqp=CAU" },
+  { id:9,title:"Updated schedule: dates and kick-off times for next phase",category:"Schedule",author:"Lucía Ortega",date:"2025-11-05",excerpt:"The league published new dates after rescheduling due to weather and international commitments.",content:"The dates for the decisive phase were confirmed. Several teams will face congested fixtures and TV-driven adjustments are expected.",thumbText:"SCHED",score:null,tags:["Schedule","League"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbZUGY50DLzH_K9SMclwsKQP0Zrcc7zdyNJQ&usqp=CAU" },
+  { id:10,title:"Column: where is local soccer headed?",category:"Opinion",author:"Martín Delgado",date:"2025-11-04",excerpt:"Analysis of league structure, youth development and economic sustainability.",content:"This column argues the need for reforms in youth development and adaptation to new business models.",thumbText:"OPIN",score:null,tags:["Opinion","Column"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE10&s=10" },
+  { id:11,title:"Gallery: best plays of the matchday",category:"Multimedia",author:"Multimedia Team",date:"2025-11-03",excerpt:"A visual roundup of the most outstanding actions and the most spectacular goals.",content:"The selection includes impressive strikes, saves and celebrations that colored the matchday.",thumbText:"MULTI",score:null,tags:["Gallery","Highlights"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE11&s=10" },
+  { id:12,title:"Interview: the president talks about the next season",category:"Interview",author:"Marcos Gil",date:"2025-11-02",excerpt:"We spoke with the club president about goals, investments and the long-term project.",content:"The interview addresses infrastructure, signings and the commitment to youth academy development.",thumbText:"INT",score:null,tags:["Interview","Board"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE12&s=10" }
+];
 
     // Refs
     const articlesList = document.getElementById('articlesList');
