@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Noticia — Deportes Hoy</title>
+  <meta name="description" content="Detalle de la noticia" />
+  <style>
+    :root{
+      --bg:#f7fbff;
+      --card:#ffffff;
+      --muted:#6d7682;
+      --accent:#2b7be4;
+      --accent-2:#3aa0ff;
+      --shadow-1: 8px 10px 18px rgba(150,165,185,0.12);
+      --radius:12px;
+      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{padding:18px;background:linear-gradient(180deg,#f4f9ff,#ffffff);color:#122;line-height:1.5}
+    .container{max-width:980px;margin:0 auto}
+    .back{display:inline-block;margin-bottom:12px;text-decoration:none;color:var(--accent);font-weight:700}
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow-1)}
+    .meta{color:var(--muted);margin-bottom:8px}
+    h1{margin-top:0;font-size:1.45rem}
+    img.hero{width:100%;height:auto;max-height:420px;object-fit:cover;border-radius:10px;margin-bottom:12px}
+    .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .tag{background:linear-gradient(180deg,#eef6ff,#ffffff);padding:6px 10px;border-radius:999px;font-weight:700;color:#0b2a66}
+    .actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+    .btn{padding:10px 12px;border-radius:10px;border:0;background:#eef6ff;cursor:pointer;font-weight:700}
+    .btn.primary{background: linear-gradient(180deg,var(--accent), var(--accent-2));color:white}
+    .not-found{padding:30px;text-align:center;color:var(--muted)}
+    @media (min-width:700px){ body{padding:28px} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back" aria-label="Volver a inicio">← Volver a inicio</a>
+
+    <div id="detailWrapper"></div>
+  </div>
+
+  <script>
+    // Mismo array básico (puedes moverlo a un JSON externo y fetch si prefieres)
+    const articles = [
+      { id:1,title:"Atléticos remontan y se coronan en la Copa Continental",category:"Fútbol",author:"Laura Méndez",date:"2025-11-12",excerpt:"Gol en el 88' y penal en el 92' hicieron vibrar al Estadio Central. Crónica del encuentro.",content:"Atléticos de Río protagonizaron una remontada histórica ante Titanes con goles de R. Silva y M. Ortega. El técnico destacó la garra del equipo y la mentalidad sólida en los minutos finales.",thumbText:"FÚTBOL",score:"3-2",tags:["Remontada","Final"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:2,title:"Tigres sobreviven al final para vencer a los Halcones",category:"Baloncesto",author:"Carlos Pinto",date:"2025-11-12",excerpt:"Partido cerrado en el que una bandeja decidida definió el marcador en tiempo extra.",content:"Los Tigres lograron una victoria agónica 98-95 en un duelo que se decidió en tiempo extra. El MVP fue J. Romero con 34 puntos.",thumbText:"BASQ",score:"98-95",tags:["NBA","Playoffs"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:3,title:"Victoria sorpresa en el Abierto de la Costa",category:"Tenis",author:"María López",date:"2025-11-11",excerpt:"La joven promesa derrotó a la favorita en dos sets y avanza a semifinales.",content:"En un partido sin precedentes, A. Rivera venció en sets corridos y mostró gran solidez desde el fondo de la pista. La lluvia interrumpió la jornada más tarde.",thumbText:"TENIS",score:null,tags:["Torneo","Sorpresa"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:4,title:"Equipo Olímpico anuncia su lista provisional",category:"Atletismo",author:"Diego Herrera",date:"2025-11-10",excerpt:"La federación dio a conocer 18 atletas en la lista provisional rumbo a los próximos juegos.",content:"El comité técnico seleccionó a los atletas con mejores marcas del año. Las pruebas definitivas se confirmarán el próximo mes.",thumbText:"ATLET",score:null,tags:["Selección","Juegos"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:5,title:"Derbi local termina en empate con polémica arbitral",category:"Fútbol",author:"Sofía Ramos",date:"2025-11-09",excerpt:"Una tarjeta roja y un gol anulado encendieron a ambas hinchadas.",content:"El encuentro entre Club Norte y Sur FC terminó 1-1 tras decisiones discutibles del colegiado. Los entrenadores reclamaron revisión VAR.",thumbText:"DERBI",score:"1-1",tags:["Polémica","VAR"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:6,title:"Liga femenina: récord de asistencia en la jornada 8",category:"Fútbol",author:"Paola Jiménez",date:"2025-11-08",excerpt:"Las gradas se llenaron para el clásico femenino; un gran paso para la liga.",content:"Con una entrada histórica, la liga femenina registró su mayor asistencia de la temporada, lo que genera expectativas positivas para el crecimiento del deporte.",thumbText:"FEM",score:null,tags:["Femenil","Asistencia"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:7,title:"Archivo histórico: centenario del Club Norte",category:"Historia",author:"Ana Torres",date:"2025-11-07",excerpt:"El club celebra 100 años con una exposición de trofeos y recuerdos.",content:"La conmemoración contó con exjugadores, directivos y miles de aficionados que recordaron los momentos más importantes del centenario.",thumbText:"ARCH",score:null,tags:["Centenario","Historia"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE7&s=10" },
+      { id:8,title:"Informe: estadísticas de la temporada — máximos goleadores",category:"Estadísticas",author:"Pablo Vélez",date:"2025-11-06",excerpt:"Ranking de máximos anotadores, asistencias y minutos jugados hasta la jornada 12.",content:"El informe muestra cambios significativos en la tabla de goleadores y destaca a jugadores que mejoraron su rendimiento en los últimos meses.",thumbText:"DATA",score:null,tags:["Estadísticas","Informe"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE8&s=10" },
+      { id:9,title:"Calendario actualizado: fechas y horarios de la próxima fase",category:"Calendario",author:"Lucía Ortega",date:"2025-11-05",excerpt:"La liga publicó las nuevas fechas tras reprogramaciones por clima y compromisos internacionales.",content:"Se confirmaron las fechas de la fase decisiva. Varios equipos tendrán jornadas compactas y se esperan ajustes por TV.",thumbText:"CAL",score:null,tags:["Calendario","Liga"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE9&s=10" },
+      { id:10,title:"Columna: ¿hacia dónde va el fútbol local?",category:"Opinión",author:"Martín Delgado",date:"2025-11-04",excerpt:"Análisis sobre la estructura de ligas, formación de juveniles y sostenibilidad económica.",content:"En esta columna se argumenta la necesidad de reformas en formación juvenil y adaptación a nuevos modelos de negocio.",thumbText:"OPIN",score:null,tags:["Opinión","Columna"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE10&s=10" },
+      { id:11,title:"Galería: las mejores jugadas de la jornada",category:"Multimedia",author:"Equipo Multimedia",date:"2025-11-03",excerpt:"Un repaso visual con las acciones más destacadas y los goles más vistosos.",content:"La selección incluye remates impresionantes, atajadas y celebraciones que dieron color a la jornada.",thumbText:"MULTI",score:null,tags:["Galería","Highlights"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE11&s=10" },
+      { id:12,title:"Entrevista: el presidente habla sobre la próxima temporada",category:"Entrevista",author:"Marcos Gil",date:"2025-11-02",excerpt:"Conversamos con el presidente del club sobre metas, inversiones y proyecto a largo plazo.",content:"En la entrevista se abordan temas de infraestructura, fichajes y la apuesta por las categorías formativas.",thumbText:"ENT",score:null,tags:["Entrevista","Directiva"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE12&s=10" }
+    ];
+
+    const wrapper = document.getElementById('detailWrapper');
+
+    function getIdFromUrl(){
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      return id ? parseInt(id,10) : null;
+    }
+
+    function formatDate(iso){
+      try{ const d = new Date(iso); return d.toLocaleDateString('es-ES', { year:'numeric', month:'short', day:'numeric' }); }catch(e){ return iso; }
+    }
+
+    function escapeHtml(str){
+      return String(str || '').replace(/[&<>"]/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[s]; });
+    }
+
+    function renderNotFound(){
+      wrapper.innerHTML = `<div class="card not-found"><h3>Noticia no encontrada</h3><p class="muted">No existe una noticia con ese identificador. <a href="index.html">Volver al inicio</a></p></div>`;
+    }
+
+    function shareArticle(id){
+      const a = articles.find(x=>x.id===id);
+      const url = location.origin + location.pathname + '?id=' + id;
+      // Si existe Web Share API, usarla; si no, copiar al portapapeles (o alert)
+      if(navigator.share){
+        navigator.share({ title: a ? a.title : 'Noticia', text: a ? a.excerpt : '', url }).catch(()=>{});
+      } else if(navigator.clipboard){
+        navigator.clipboard.writeText(url).then(()=> alert('Enlace copiado al portapapeles'), ()=> alert(url));
+      } else {
+        alert('Enlace: ' + url);
+      }
+    }
+
+    // Render
+    (function init(){
+      const id = getIdFromUrl();
+      if(!id){ renderNotFound(); return; }
+      const a = articles.find(x=>x.id===id);
+      if(!a){ renderNotFound(); return; }
+
+      wrapper.innerHTML = `
+        <div class="card">
+          <h1>${escapeHtml(a.title)} ${a.score ? `<span style="display:inline-block;padding:6px 10px;border-radius:10px;background:#0b2a66;color:white;font-weight:800;margin-left:8px">${a.score}</span>` : ''}</h1>
+          <div class="meta">${a.category} · ${formatDate(a.date)} · Por ${a.author}</div>
+          <img class="hero" src="${a.image}" alt="Imagen de ${escapeHtml(a.title)}">
+          <p>${escapeHtml(a.content)}</p>
+          <div class="tags">
+            ${(a.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="shareArticle(${a.id})">Compartir</button>
+            <a class="btn" href="index.html">Volver</a>
+            <a class="btn primary" href="index.html">Ver más noticias</a>
+          </div>
+        </div>
+      `;
+    })();
+  </script>
+</body>
+</html>
