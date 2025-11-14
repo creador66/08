@@ -1,177 +1,367 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Demo App Premium</title>
-  <!-- Tipografía Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deportes Hoy — Noticias deportivas</title>
+  <meta name="description" content="Portal de noticias deportivas" />
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-      font-family: 'Poppins', sans-serif;
+    :root{
+      --bg:#eef5fb;
+      --card:#f6fbff;
+      --muted:#6d7682;
+      --accent:#2b7be4;
+      --accent-2:#3aa0ff;
+      --shadow-1: 8px 10px 18px rgba(150,165,185,0.18);
+      --shadow-2: -6px -6px 16px rgba(255,255,255,0.85);
+      --radius:14px;
+      --gap:12px;
+      font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size:16px;
     }
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, var(--bg), #f8fbff 300px);
+      color:#10202f;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:16px;
+      line-height:1.35;
     }
-    .container {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      max-width: 420px;
-      width: 100%;
-      padding: 2rem;
-      position: relative;
-      overflow: hidden;
+    header.site-header{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+    .header-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:12px;background: linear-gradient(135deg,var(--accent), var(--accent-2));box-shadow: var(--shadow-1), var(--shadow-2);display:grid;place-items:center;color:white;font-weight:700;font-size:1rem;flex:0 0 48px}
+    .brand h1{margin:0;font-size:1rem;}
+    .brand p{margin:0;font-size:0.78rem;color:var(--muted)}
+    .search-bar{display:flex;align-items:center;gap:10px;background:var(--card);padding:8px 12px;border-radius:999px;box-shadow: var(--shadow-1), var(--shadow-2);width:100%}
+    .search-bar svg{flex:0 0 18px; opacity:0.7}
+    .search-bar input{border:0;background:transparent;outline:none;font-size:0.95rem;width:100%}
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{padding:10px 12px;border-radius:10px;border:0;background:var(--card);box-shadow: var(--shadow-1), var(--shadow-2);cursor:pointer;font-weight:700;font-size:0.95rem;min-height:44px}
+    .btn.primary{background: linear-gradient(180deg,var(--accent), var(--accent-2));color:white; box-shadow: 0 8px 22px rgba(43,123,228,0.18)}
+    main{display:block;gap:var(--gap);margin-bottom:18px}
+    .hero-slider{background: linear-gradient(180deg, rgba(43,123,228,0.06), rgba(43,123,228,0.02));border-radius:12px;box-shadow: var(--shadow-1), var(--shadow-2);position:relative;overflow:hidden}
+    .hero-slider .slides{display:flex;transition:transform .55s cubic-bezier(.2,.9,.2,1);will-change:transform}
+    .hero-slider .slide{min-width:100%;padding:14px;display:flex;gap:12px;align-items:center}
+    .hero-slider .slide .big{flex:1}
+    .hero-slider h2{margin:0;font-size:1rem}
+    .hero-slider p{margin:6px 0 0;color:var(--muted);font-size:0.9rem}
+    .slider-btn{position:absolute;top:50%;transform:translateY(-50%);border:0;background:rgba(255,255,255,0.9);border-radius:999px;padding:8px 12px;cursor:pointer;box-shadow:var(--shadow-1);font-size:18px}
+    .slider-btn.prev{left:12px}
+    .slider-btn.next{right:12px}
+    .slider-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:5}
+    .slider-dots button{width:10px;height:10px;border-radius:50%;border:0;background:rgba(6,12,20,0.12);cursor:pointer}
+    .slider-dots button.active{background:var(--accent)}
+    .hero-thumb{width:110px;text-align:center;flex:0 0 110px;height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px}
+    .hero-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
+    .articles{display:block;margin-top:12px;gap:12px}
+    .card{background:var(--card);padding:10px;border-radius:12px;box-shadow: var(--shadow-1), var(--shadow-2);display:flex;gap:10px;align-items:flex-start}
+    .thumb{width:84px;height:64px;border-radius:10px;flex:0 0 84px;background:linear-gradient(180deg,#dbe8ff, #c7ddff);display:block;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:10px}
+    .meta{font-size:0.78rem;color:var(--muted);margin-bottom:6px}
+    .title{font-weight:800;margin:0 0 6px;font-size:0.98rem}
+    .excerpt{margin:0;color:#24343f;font-size:0.9rem}
+    .sidebar{margin-top:14px;display:block;gap:12px}
+    .panel{background:var(--card);padding:12px;border-radius:12px;box-shadow: var(--shadow-1), var(--shadow-2); margin-bottom:12px}
+    .categories{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:8px 10px;border-radius:999px;background:linear-gradient(180deg,#fff,#eef6ff);font-weight:700;cursor:pointer;border:0;font-size:0.9rem}
+    .chip.active{background:linear-gradient(180deg,var(--accent), var(--accent-2));color:white}
+    .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .quick-grid a{display:block;text-decoration:none;background:linear-gradient(180deg,#ffffff,#f0f8ff);padding:10px;border-radius:10px;text-align:left;font-weight:700;box-shadow: var(--shadow-1), var(--shadow-2);min-height:44px;align-items:center;color:#083058;font-size:0.92rem}
+    .quick-grid a.external{display:flex;justify-content:space-between;align-items:center}
+    .quick-label{opacity:0.95}
+    footer{margin-top:8px;color:var(--muted);font-size:0.85rem;text-align:center;padding-bottom:28px}
+    @media (min-width: 601px){
+      body{padding:20px}
+      header.site-header{flex-direction:row;align-items:center}
+      .search-bar{max-width:560px}
+      main{display:grid;grid-template-columns: 1fr 340px;gap:20px}
+      .articles{display:grid;grid-template-columns:repeat(2,1fr)}
+      .sidebar{position:sticky;top:24px}
+      .hero-slider h2{font-size:1.15rem}
+      .hero-thumb{width:140px;flex:0 0 140px;height:96px}
     }
-    .glow {
-      position: absolute;
-      top: -30%;
-      left: -30%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 30% 30%, rgba(106,146,245,0.4), transparent 70%);
-      animation: rotate 8s linear infinite;
-      z-index: 0;
+    @media (min-width: 980px){
+      :root{font-size:16px}
+      .logo{width:56px;height:56px;flex:0 0 56px}
+      .thumb{width:110px;height:80px;flex:0 0 110px}
+      .hero-thumb{width:140px;flex:0 0 140px}
     }
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-    .content {
-      position: relative;
-      z-index: 1;
-    }
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1e1e2f;
-      margin-bottom: 0.5rem;
-    }
-    p.intro {
-      font-weight: 300;
-      color: #4a4a6a;
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
-    }
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    .form-group label {
-      display: block;
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: #5a5a75;
-      margin-bottom: 0.3rem;
-    }
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.7rem;
-      border: 1px solid #d1d1e9;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 300;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .form-group input:focus,
-    .form-group textarea:focus {
-      border-color: #6a92f5;
-      box-shadow: 0 0 0 3px rgba(106,146,245,0.2);
-      outline: none;
-    }
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    button {
-      width: 100%;
-      padding: 0.8rem;
-      font-size: 1rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: linear-gradient(135deg, #6a92f5, #9ad9f5);
-      color: #fff;
-      box-shadow: 0 5px 15px rgba(106,146,245,0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(106,146,245,0.5);
-    }
-    .note {
-      margin-top: 0.8rem;
-      font-size: 0.85rem;
-      color: #7a7a8f;
-      text-align: center;
-      font-weight: 300;
-    }
-    .footer {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #7a7a8f;
-      text-align: center;
-      font-weight: 300;
-    }
+    .muted{color:var(--muted);font-size:0.9rem}
+    a{color:inherit}
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="glow"></div>
-    <div class="content">
-      <h1>Demo App Premium</h1>
-      <p class="intro">
-        Esta aplicación es de paga. Completa el formulario para solicitar un demo y descubre todas sus funcionalidades premium.
-      </p>
-      <div class="form-group">
-        <label for="name">Nombre completo</label>
-        <input type="text" id="name" placeholder="Tu nombre" />
+  <header class="site-header">
+    <div class="header-top">
+      <div class="brand" aria-label="Deportes Hoy">
+        <div class="logo">DH</div>
+        <div>
+          <h1>Deportes Hoy</h1>
+          <p>Últimas noticias y resultados — demo</p>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="company">Empresa (opcional)</label>
-        <input type="text" id="company" placeholder="Tu empresa" />
-      </div>
-      <div class="form-group">
-        <label for="message">Mensaje</label>
-        <textarea id="message" placeholder="Cuéntanos qué necesitas"></textarea>
-      </div>
-      <button id="sendBtn">Solicitar Demo</button>
-      <p class="note">Te atenderemos por WhatsApp en breve.</p>
-    </div>
-  </div>
 
-  <div class="footer">© 2025 IAEgo. Todos los derechos reservados.</div>
+      <div class="controls" style="margin-left:auto">
+        <button class="btn" id="refreshBtn" title="Refrescar">⟳</button>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center;">
+      <div class="search-bar" role="search" aria-label="Buscar noticias">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#6b7788" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <input id="searchInput" placeholder="Buscar jugador, equipo o noticia..." aria-label="Buscar noticias">
+        <button class="btn" id="clearBtn" title="Limpiar búsqueda" style="display:none">✕</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section aria-label="Contenido principal">
+      <div class="hero-slider" id="heroSlider" aria-roledescription="carousel" aria-label="Noticias destacadas">
+        <div class="slides" id="heroSlides" role="list"></div>
+
+        <button class="slider-btn prev" id="heroPrev" aria-label="Anterior">‹</button>
+        <button class="slider-btn next" id="heroNext" aria-label="Siguiente">›</button>
+
+        <div class="slider-dots" id="heroDots" role="tablist" aria-label="Seleccionar noticia"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <h3 style="margin:0;font-size:1rem">Últimas noticias</h3>
+        <div class="muted">Mostrando <span id="count">0</span> artículos</div>
+      </div>
+
+      <div class="articles" id="articlesList" aria-live="polite"></div>
+    </section>
+
+    <aside class="sidebar" aria-label="Barra lateral">
+      <div class="panel" role="navigation" aria-label="Categorías">
+        <h4 style="margin:0 0 8px 0">Categorías</h4>
+        <div class="categories" id="categories"></div>
+      </div>
+
+      <div class="panel" aria-label="Enlaces rápidos">
+        <h4 style="margin:0 0 8px 0">Enlaces rápidos (12)</h4>
+        <div class="quick-grid" id="quickLinks">
+          <!-- Ahora enlazan a article.html?id=ID -->
+          <a href="article.html?id=1" class="quick-link" data-id="1" aria-label="Enlace 1 - Final Copa">1 · Final Copa</a>
+          <a href="article.html?id=2" class="quick-link" data-id="2" aria-label="Enlace 2 - Tigres vs Halcones">2 · Tigres vs Halcones</a>
+          <a href="article.html?id=3" class="quick-link" data-id="3" aria-label="Enlace 3 - Abierto de la Costa">3 · Abierto de la Costa</a>
+          <a href="article.html?id=4" class="quick-link" data-id="4" aria-label="Enlace 4 - Lista Olímpica">4 · Lista Olímpica</a>
+          <a href="article.html?id=5" class="quick-link" data-id="5" aria-label="Enlace 5 - Derbi Local">5 · Derbi Local</a>
+          <a href="article.html?id=6" class="quick-link" data-id="6" aria-label="Enlace 6 - Liga Femenina">6 · Liga Femenina</a>
+
+          <a href="article.html?id=7" class="quick-link" data-id="7" aria-label="Enlace 7 - Archivo">7 · Archivo</a>
+          <a href="article.html?id=8" class="quick-link" data-id="8" aria-label="Enlace 8 - Estadísticas">8 · Estadísticas</a>
+          <a href="article.html?id=9" class="quick-link" data-id="9" aria-label="Enlace 9 - Calendario">9 · Calendario</a>
+          <a href="article.html?id=10" class="quick-link" data-id="10" aria-label="Enlace 10 - Opinión">10 · Opinión</a>
+          <a href="article.html?id=11" class="quick-link" data-id="11" aria-label="Enlace 11 - Multimedia">11 · Multimedia</a>
+          <a href="article.html?id=12" class="quick-link" data-id="12" aria-label="Enlace 12 - Entrevista">12 · Entrevista</a>
+        </div>
+      </div>
+
+      <div class="panel" aria-label="Resultados rápidos">
+        <h4 style="margin:0 0 8px 0">Resultados rápidos</h4>
+        <p class="muted" id="quickResults">Goles del día, estadísticas y highlights (datos ficticios).</p>
+        <ul style="padding-left:18px;margin:8px 0 0 0">
+          <li><strong>Fútbol:</strong> Atléticos 3 - 2 Titanes</li>
+          <li><strong>Baloncesto:</strong> Tigres 98 - 95 Halcones</li>
+          <li><strong>Tenis:</strong> Final femenina aplazada por lluvia</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    Deportes Hoy — Demo con datos falsos
+  </footer>
 
   <script>
-    document.getElementById('sendBtn').addEventListener('click', () => {
-      const name = document.getElementById('name').value.trim();
-      const company = document.getElementById('company').value.trim();
-      const message = document.getElementById('message').value.trim();
+    // Datos ficticios (duplicables en article.html)
+    const articles = [
+      { id:1,title:"Atléticos remontan y se coronan en la Copa Continental",category:"Fútbol",author:"Laura Méndez",date:"2025-11-12",excerpt:"Gol en el 88' y penal en el 92' hicieron vibrar al Estadio Central. Crónica del encuentro.",content:"Atléticos de Río protagonizaron una remontada histórica ante Titanes con goles de R. Silva y M. Ortega. El técnico destacó la garra del equipo y la mentalidad sólida en los minutos finales.",thumbText:"FÚTBOL",score:"3-2",tags:["Remontada","Final"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:2,title:"Tigres sobreviven al final para vencer a los Halcones",category:"Baloncesto",author:"Carlos Pinto",date:"2025-11-12",excerpt:"Partido cerrado en el que una bandeja decidida definió el marcador en tiempo extra.",content:"Los Tigres lograron una victoria agónica 98-95 en un duelo que se decidió en tiempo extra. El MVP fue J. Romero con 34 puntos.",thumbText:"BASQ",score:"98-95",tags:["NBA","Playoffs"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:3,title:"Victoria sorpresa en el Abierto de la Costa",category:"Tenis",author:"María López",date:"2025-11-11",excerpt:"La joven promesa derrotó a la favorita en dos sets y avanza a semifinales.",content:"En un partido sin precedentes, A. Rivera venció en sets corridos y mostró gran solidez desde el fondo de la pista. La lluvia interrumpió la jornada más tarde.",thumbText:"TENIS",score:null,tags:["Torneo","Sorpresa"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:4,title:"Equipo Olímpico anuncia su lista provisional",category:"Atletismo",author:"Diego Herrera",date:"2025-11-10",excerpt:"La federación dio a conocer 18 atletas en la lista provisional rumbo a los próximos juegos.",content:"El comité técnico seleccionó a los atletas con mejores marcas del año. Las pruebas definitivas se confirmarán el próximo mes.",thumbText:"ATLET",score:null,tags:["Selección","Juegos"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:5,title:"Derbi local termina en empate con polémica arbitral",category:"Fútbol",author:"Sofía Ramos",date:"2025-11-09",excerpt:"Una tarjeta roja y un gol anulado encendieron a ambas hinchadas.",content:"El encuentro entre Club Norte y Sur FC terminó 1-1 tras decisiones discutibles del colegiado. Los entrenadores reclamaron revisión VAR.",thumbText:"DERBI",score:"1-1",tags:["Polémica","VAR"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:6,title:"Liga femenina: récord de asistencia en la jornada 8",category:"Fútbol",author:"Paola Jiménez",date:"2025-11-08",excerpt:"Las gradas se llenaron para el clásico femenino; un gran paso para la liga.",content:"Con una entrada histórica, la liga femenina registró su mayor asistencia de la temporada, lo que genera expectativas positivas para el crecimiento del deporte.",thumbText:"FEM",score:null,tags:["Femenil","Asistencia"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJN1xh6pPG14OvWCYrHcTGkF3Vjz9gAg7PJZKQsmjNqQ&s=10" },
+      { id:7,title:"Archivo histórico: centenario del Club Norte",category:"Historia",author:"Ana Torres",date:"2025-11-07",excerpt:"El club celebra 100 años con una exposición de trofeos y recuerdos.",content:"La conmemoración contó con exjugadores, directivos y miles de aficionados que recordaron los momentos más importantes del centenario.",thumbText:"ARCH",score:null,tags:["Centenario","Historia"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE7&s=10" },
+      { id:8,title:"Informe: estadísticas de la temporada — máximos goleadores",category:"Estadísticas",author:"Pablo Vélez",date:"2025-11-06",excerpt:"Ranking de máximos anotadores, asistencias y minutos jugados hasta la jornada 12.",content:"El informe muestra cambios significativos en la tabla de goleadores y destaca a jugadores que mejoraron su rendimiento en los últimos meses.",thumbText:"DATA",score:null,tags:["Estadísticas","Informe"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE8&s=10" },
+      { id:9,title:"Calendario actualizado: fechas y horarios de la próxima fase",category:"Calendario",author:"Lucía Ortega",date:"2025-11-05",excerpt:"La liga publicó las nuevas fechas tras reprogramaciones por clima y compromisos internacionales.",content:"Se confirmaron las fechas de la fase decisiva. Varios equipos tendrán jornadas compactas y se esperan ajustes por TV.",thumbText:"CAL",score:null,tags:["Calendario","Liga"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE9&s=10" },
+      { id:10,title:"Columna: ¿hacia dónde va el fútbol local?",category:"Opinión",author:"Martín Delgado",date:"2025-11-04",excerpt:"Análisis sobre la estructura de ligas, formación de juveniles y sostenibilidad económica.",content:"En esta columna se argumenta la necesidad de reformas en formación juvenil y adaptación a nuevos modelos de negocio.",thumbText:"OPIN",score:null,tags:["Opinión","Columna"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE10&s=10" },
+      { id:11,title:"Galería: las mejores jugadas de la jornada",category:"Multimedia",author:"Equipo Multimedia",date:"2025-11-03",excerpt:"Un repaso visual con las acciones más destacadas y los goles más vistosos.",content:"La selección incluye remates impresionantes, atajadas y celebraciones que dieron color a la jornada.",thumbText:"MULTI",score:null,tags:["Galería","Highlights"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE11&s=10" },
+      { id:12,title:"Entrevista: el presidente habla sobre la próxima temporada",category:"Entrevista",author:"Marcos Gil",date:"2025-11-02",excerpt:"Conversamos con el presidente del club sobre metas, inversiones y proyecto a largo plazo.",content:"En la entrevista se abordan temas de infraestructura, fichajes y la apuesta por las categorías formativas.",thumbText:"ENT",score:null,tags:["Entrevista","Directiva"],image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRANDOMIMAGE12&s=10" }
+    ];
 
-      if (!name || !message) {
-        alert('Por favor completa tu nombre y mensaje.');
-        return;
-      }
+    // Refs
+    const articlesList = document.getElementById('articlesList');
+    const countEl = document.getElementById('count');
+    const categoriesEl = document.getElementById('categories');
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const heroSlidesEl = document.getElementById('heroSlides');
+    const heroDotsEl = document.getElementById('heroDots');
+    const heroPrev = document.getElementById('heroPrev');
+    const heroNext = document.getElementById('heroNext');
+    const heroSlider = document.getElementById('heroSlider');
 
-      const phone = '9382502171';
-      let text = `Hola, soy ${name}`;
-      if (company) text += ` de ${company}`;
-      text += '.\n\nMe interesa un demo de la Demo App Premium.\n\n';
-      text += `Mensaje adicional: ${message}`;
+    const categories = ["Todas", ...Array.from(new Set(articles.map(a=>a.category)))];
+    let activeCategory = "Todas";
+    let currentQuery = "";
 
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-      window.location.href = url;
+    // Slider
+    let heroIndex = 0;
+    let heroTimer = null;
+    const HERO_INTERVAL = 4000;
+
+    function renderCategories(){
+      categoriesEl.innerHTML = "";
+      categories.forEach(cat=>{
+        const btn = document.createElement('button');
+        btn.className = 'chip' + (cat===activeCategory ? ' active' : '');
+        btn.textContent = cat;
+        btn.onclick = ()=>{ activeCategory = cat; renderArticles(); renderCategories(); buildHeroSlides(); };
+        categoriesEl.appendChild(btn);
+      });
+    }
+
+    function renderArticles(){
+      const filtered = articles.filter(a=>{
+        const matchCat = activeCategory === "Todas" || a.category === activeCategory;
+        const q = currentQuery.trim().toLowerCase();
+        const matchQuery = !q || (a.title + " " + a.excerpt + " " + a.author + " " + (a.tags||[]).join(" ")).toLowerCase().includes(q);
+        return matchCat && matchQuery;
+      });
+      articlesList.innerHTML = "";
+      countEl.textContent = filtered.length;
+
+      filtered.forEach(a=>{
+        const card = document.createElement('article');
+        card.className = 'card';
+        // enlace a página de detalle con id
+        card.innerHTML = `
+          <div class="thumb" aria-hidden>
+            <img src="${a.image}" alt="Imagen de ${escapeHtml(a.title)}">
+          </div>
+          <div style="flex:1">
+            <div class="meta">${a.category} · ${formatDate(a.date)} · Por ${a.author}</div>
+            <h4 class="title"><a href="article.html?id=${a.id}">${escapeHtml(a.title)}</a></h4>
+            <p class="excerpt">${escapeHtml(a.excerpt)}</p>
+          </div>
+        `;
+        articlesList.appendChild(card);
+      });
+    }
+
+    function buildHeroSlides(){
+      const featured = articles.slice(0, 3);
+      heroSlidesEl.innerHTML = '';
+      heroDotsEl.innerHTML = '';
+
+      featured.forEach((a, i)=>{
+        const slide = document.createElement('div');
+        slide.className = 'slide';
+        slide.setAttribute('role','listitem');
+        slide.innerHTML = `
+          <div class="big">
+            <h2>${escapeHtml(a.title)} ${a.score ? `<span style="display:inline-block;padding:6px 10px;border-radius:10px;background:#0b2a66;color:white;font-weight:800;margin-left:8px">${a.score}</span>` : ''}</h2>
+            <p class="muted">Por: ${a.author} · ${formatDate(a.date)}</p>
+            <p style="margin-top:8px">${escapeHtml(a.excerpt)}</p>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <a class="btn" href="article.html?id=${a.id}">Leer</a>
+              <a class="btn primary" href="article.html?id=${a.id}">Ver detalle</a>
+            </div>
+          </div>
+          <div class="hero-thumb" aria-hidden>
+            <img src="${a.image}" alt="Imagen destacada de ${escapeHtml(a.title)}">
+          </div>
+        `;
+        heroSlidesEl.appendChild(slide);
+
+        const dot = document.createElement('button');
+        dot.setAttribute('aria-label', `Ir a ${a.title}`);
+        dot.dataset.index = i;
+        dot.addEventListener('click', ()=>{ goToHero(i); });
+        heroDotsEl.appendChild(dot);
+      });
+
+      heroIndex = 0;
+      updateHeroUI();
+      restartHeroAuto();
+    }
+
+    function updateHeroUI(){
+      const slidesCount = heroSlidesEl.children.length;
+      const offset = heroIndex * -100;
+      heroSlidesEl.style.transform = `translateX(${offset}%)`;
+      Array.from(heroDotsEl.children).forEach((d, idx)=>{
+        d.classList.toggle('active', idx === heroIndex);
+        d.setAttribute('aria-selected', idx === heroIndex ? 'true' : 'false');
+        d.setAttribute('role','tab');
+        d.tabIndex = idx === heroIndex ? 0 : -1;
+      });
+    }
+
+    function goToHero(i){
+      const slidesCount = heroSlidesEl.children.length;
+      if(slidesCount === 0) return;
+      heroIndex = (i + slidesCount) % slidesCount;
+      updateHeroUI();
+      restartHeroAuto();
+    }
+    function nextHero(){ goToHero(heroIndex + 1); }
+    function prevHero(){ goToHero(heroIndex - 1); }
+    function startHeroAuto(){ stopHeroAuto(); heroTimer = setInterval(()=>{ nextHero(); }, HERO_INTERVAL); }
+    function stopHeroAuto(){ if(heroTimer) { clearInterval(heroTimer); heroTimer = null; } }
+    function restartHeroAuto(){ stopHeroAuto(); startHeroAuto(); }
+
+    heroSlider.addEventListener('mouseenter', stopHeroAuto);
+    heroSlider.addEventListener('mouseleave', startHeroAuto);
+    heroSlider.addEventListener('focusin', stopHeroAuto);
+    heroSlider.addEventListener('focusout', startHeroAuto);
+    heroSlider.addEventListener('touchstart', stopHeroAuto, {passive:true});
+    heroSlider.addEventListener('touchend', startHeroAuto, {passive:true});
+    heroPrev.addEventListener('click', ()=>{ prevHero(); });
+    heroNext.addEventListener('click', ()=>{ nextHero(); });
+
+    function formatDate(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleDateString('es-ES', { year:'numeric', month:'short', day:'numeric' });
+      }catch(e){ return iso; }
+    }
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"]/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[s]; });
+    }
+
+    // Search
+    searchInput.addEventListener('input', (e)=>{
+      currentQuery = e.target.value;
+      clearBtn.style.display = currentQuery ? 'inline-block' : 'none';
+      renderArticles();
     });
+    clearBtn.addEventListener('click', ()=>{
+      searchInput.value = '';
+      currentQuery = '';
+      clearBtn.style.display='none';
+      renderArticles();
+    });
+
+    // Refresh
+    document.getElementById('refreshBtn').addEventListener('click', ()=>{
+      articles.sort(()=>Math.random()-0.5);
+      renderArticles();
+      buildHeroSlides();
+    });
+
+    // Inicializar
+    renderCategories();
+    renderArticles();
+    buildHeroSlides();
   </script>
 </body>
 </html>
